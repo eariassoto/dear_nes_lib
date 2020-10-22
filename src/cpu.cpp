@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include "include/cpu.h"
 
+#include <cassert>
 #include "include/bus.h"
 
 namespace cpuemulator {

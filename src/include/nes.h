@@ -14,7 +14,6 @@ class Cartridge;
 class Ppu;
 
 class Nes {
-
    public:
     Nes();
     ~Nes();
@@ -32,22 +31,24 @@ class Nes {
 
     bool IsCartridgeLoaded() const;
 
+    uint8_t GetControllerState(size_t controllerIdx) const;
+    void ClearControllerState(size_t controllerIdx);
+    void WriteControllerState(size_t controllerIdx, uint8_t data);
+
     // TODO: provide api and make it private
+    inline Ppu* GetPpu() { return &m_Ppu; }
+    inline Cpu* GetCpu() { return &m_Cpu; }
+
+   private:
     Bus m_Bus;
     Dma m_Dma;
     Ppu m_Ppu;
     Cpu m_Cpu;
-
-   private:
 
     Cartridge* m_Cartridge = nullptr;
 
     bool m_IsCartridgeLoaded = false;
 
     uint32_t m_SystemClockCounter = 0;
-
-    uint8_t m_ControllerState[2] = {0};
-
-    
 };
 }  // namespace cpuemulator

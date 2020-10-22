@@ -1,25 +1,14 @@
 // Copyright (c) 2020 Emmanuel Arias
 #pragma once
-#include <array>
-#include <cassert>
 #include <cinttypes>
 #include <functional>
 #include <map>
 
+#include "include/enums.h"
+
 namespace cpuemulator {
 
 class Bus;
-
-enum CpuFlag : uint8_t {
-    C = (0b1 << 0),  // Carry Bit
-    Z = (0b1 << 1),  // Zero
-    I = (0b1 << 2),  // Disable Interrupts
-    D = (0b1 << 3),  // Decimal Mode
-    B = (0b1 << 4),  // Break
-    U = (0b1 << 5),  // Unused
-    V = (0b1 << 6),  // Overflow
-    N = (0b1 << 7),  // Negative
-};
 
 class Cpu {
    public:

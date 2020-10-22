@@ -2,7 +2,9 @@
 #include "include/nes.h"
 
 #include <iostream>
+#include <cassert>
 #include "include/cartridge.h"
+#include "include/enums.h"
 
 namespace cpuemulator {
 
@@ -76,5 +78,20 @@ void Nes::DoFrame() {
 }
 
 bool Nes::IsCartridgeLoaded() const { return m_IsCartridgeLoaded; }
+
+uint8_t Nes::GetControllerState(size_t controllerIdx) const {
+    assert(controllerIdx < NUM_CONTROLLERS);
+    return m_Bus.GetControllerState(controllerIdx);
+}
+
+void Nes::ClearControllerState(size_t controllerIdx) {
+    assert(controllerIdx < NUM_CONTROLLERS);
+    m_Bus.ClearControllerState(controllerIdx);
+}
+
+void Nes::WriteControllerState(size_t controllerIdx, uint8_t data) {
+    assert(controllerIdx < NUM_CONTROLLERS);
+    m_Bus.WriteControllerState(controllerIdx, data);
+}
 
 }  // namespace cpuemulator

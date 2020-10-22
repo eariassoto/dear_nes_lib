@@ -29,6 +29,18 @@ void Bus::SetPpu(Ppu* ppu) {
     m_Ppu = ppu;
 }
 
+uint8_t Bus::GetControllerState(size_t controllerIdx) const {
+    return m_Controllers[controllerIdx];
+}
+
+void Bus::ClearControllerState(size_t controllerIdx) {
+    m_Controllers[controllerIdx] = 0x00;
+}
+
+void Bus::WriteControllerState(size_t controllerIdx, uint8_t data) {
+    m_Controllers[controllerIdx] |= data;
+}
+
 void Bus::CpuWrite(uint16_t address, uint8_t data) {
     if (m_Cartridge->CpuWrite(address, data)) {
     } else if (address >= 0x0000 && address <= 0x1FFF) {

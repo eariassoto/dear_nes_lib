@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #pragma once
 #include <cinttypes>
+#include "include/enums.h"
 
 namespace cpuemulator {
 
@@ -20,10 +21,12 @@ class Bus {
     void SetDma(Dma* dma);
     void SetPpu(Ppu* ppu);
 
-   private:
-    static constexpr size_t NUM_CONTROLLERS = 2;
-    static constexpr size_t SIZE_CPU_RAM = 0x0800;
+    // TODO: Provide better controller API
+    uint8_t GetControllerState(size_t controllerIdx) const;
+    void ClearControllerState(size_t controllerIdx);
+    void WriteControllerState(size_t controllerIdx, uint8_t data);
 
+   private:
     Cartridge* m_Cartridge = nullptr;
     Dma* m_Dma = nullptr;
     Ppu* m_Ppu = nullptr;
