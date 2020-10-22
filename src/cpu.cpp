@@ -36,15 +36,17 @@ void Cpu::Clock() {
 
         SetFlag(CpuFlag::U, 1);
 
-        auto instr2 = FindInstruction(m_OpCode);
+        // TODO: Catch exception illegal instruction
+        auto instr = FindInstruction(m_OpCode);
 
-        m_Cycles = instr2.m_Cycles;
+        m_Cycles = instr.m_Cycles;
 
-        if (instr2.m_ExecureAddressingMode) {
-            (this->*instr2.m_ExecureAddressingMode)();
+        if (instr.m_ExecureAddressingMode) {
+            (this->*instr.m_ExecureAddressingMode)();
         }
 
-        (this->*instr2.m_ExecuteInstruction)();
+        assert(instr.m_ExecuteInstruction != nullptr);
+        (this->*instr.m_ExecuteInstruction)();
 
         if (m_AddressingModeNeedsAdditionalCycle &&
             m_InstructionNeedsAdditionalCycle) {
