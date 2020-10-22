@@ -1,5 +1,7 @@
-# CMake template for a library project
+# Virtual NES
 
-This project is a simple template to start a static library project. It includes a small main executable for quick debugging. It also includes a text project using the [Catch2 library](https://github.com/catchorg/Catch2).
+This library implements a basic NES emulator. More documentation in progress.
 
-The build.bat script tells CMAKE to build the Visual Studio 2017 solution for this project.
+## Dependencies
++ C++17
++ [fmt](https://github.com/fmtlib/fmt)
