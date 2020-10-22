@@ -1,12 +1,13 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include "include/cpu.h"
 
+#include <array>
 #include <cassert>
+
+#include "include/array_map.h"
 #include "include/bus.h"
 
 namespace cpuemulator {
-
-Cpu::Cpu() { RegisterAllInstructionSet(); }
 
 void Cpu::SetBus(Bus* bus) {
     assert(bus != nullptr);
@@ -35,21 +36,15 @@ void Cpu::Clock() {
 
         SetFlag(CpuFlag::U, 1);
 
-        // todo handle illegal ops
-        auto instrIt = m_InstrTable.find(m_OpCode);
-        if (instrIt == m_InstrTable.end()) {
-            return;
+        auto instr2 = FindInstruction(m_OpCode);
+
+        m_Cycles = instr2.m_Cycles;
+
+        if (instr2.m_ExecureAddressingMode) {
+            (this->*instr2.m_ExecureAddressingMode)();
         }
 
-        Instruction &instr = instrIt->second;
-
-        m_Cycles = instr.m_Cycles;
-
-        if (instr.m_AddressingMode) {
-            instr.m_AddressingMode(this);
-        }
-
-        instr.m_FuncOperate(this);
+        (this->*instr2.m_ExecuteInstruction)();
 
         if (m_AddressingModeNeedsAdditionalCycle &&
             m_InstructionNeedsAdditionalCycle) {
@@ -623,284 +618,327 @@ void Cpu::Instruction_TYA() {
     SetFlag(N, m_RegisterA & 0x80);
 }
 
-void Cpu::RegisterAllInstructionSet() {
-    m_InstrTable.try_emplace(0x00, "BRK", &Cpu::Instruction_BRK, nullptr, 7);
-    m_InstrTable.try_emplace(0x01, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0x05, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x06, "ASL", &Cpu::Instruction_ASL,
-                             &Cpu::ZeroPageAddressing, 5);
-    m_InstrTable.try_emplace(0x08, "PHP", &Cpu::Instruction_PHP, nullptr, 3);
-    m_InstrTable.try_emplace(0x09, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0x0A, "ASL", &Cpu::Instruction_ASL_AcummAddr,
-                             nullptr, 2);
-    m_InstrTable.try_emplace(0x0D, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x0E, "ASL", &Cpu::Instruction_ASL,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0x10, "BPL", &Cpu::Instruction_BPL,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0x11, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0x15, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0x16, "ASL", &Cpu::Instruction_ASL,
-                             &Cpu::IndexedZeroPageAddressingX, 6);
-    m_InstrTable.try_emplace(0x18, "CLC", &Cpu::Instruction_CLC, nullptr, 2);
-    m_InstrTable.try_emplace(0x19, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0x1D, "ORA", &Cpu::Instruction_ORA,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0x1E, "ASL", &Cpu::Instruction_ASL,
-                             &Cpu::IndexedAbsoluteAddressingX, 7);
-    m_InstrTable.try_emplace(0x20, "JSR", &Cpu::Instruction_JSR,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0x21, "AND", &Cpu::Instruction_AND,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0x24, "BIT", &Cpu::Instruction_BIT,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x25, "AND", &Cpu::Instruction_AND,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x26, "ROL", &Cpu::Instruction_ROL,
-                             &Cpu::ZeroPageAddressing, 5);
-    m_InstrTable.try_emplace(0x28, "PLP", &Cpu::Instruction_PLP, nullptr, 4);
-    m_InstrTable.try_emplace(0x29, "AND", &Cpu::Instruction_AND,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0x2A, "ROL", &Cpu::Instruction_ROL_AcummAddr,
-                             nullptr, 2);
-    m_InstrTable.try_emplace(0x2C, "BIT", &Cpu::Instruction_BIT,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x2D, "AND", &Cpu::Instruction_AND,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x2E, "ROL", &Cpu::Instruction_ROL,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0x30, "BMI", &Cpu::Instruction_BMI,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0x31, "AND", &Cpu::Instruction_AND,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0x35, "AND", &Cpu::Instruction_AND,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0x36, "ROL", &Cpu::Instruction_ROL,
-                             &Cpu::IndexedZeroPageAddressingX, 6);
-    m_InstrTable.try_emplace(0x38, "SEC", &Cpu::Instruction_SEC, nullptr, 2);
-    m_InstrTable.try_emplace(0x39, "AND", &Cpu::Instruction_AND,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0x3D, "AND", &Cpu::Instruction_AND,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0x3E, "ROL", &Cpu::Instruction_ROL,
-                             &Cpu::IndexedAbsoluteAddressingX, 7);
-    m_InstrTable.try_emplace(0x40, "RTI", &Cpu::Instruction_RTI, nullptr, 6);
-    m_InstrTable.try_emplace(0x41, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0x45, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x46, "LSR", &Cpu::Instruction_LSR,
-                             &Cpu::ZeroPageAddressing, 5);
-    m_InstrTable.try_emplace(0x48, "PHA", &Cpu::Instruction_PHA, nullptr, 3);
-    m_InstrTable.try_emplace(0x49, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0x4A, "LSR", &Cpu::Instruction_LSR_AcummAddr,
-                             nullptr, 2);
-    m_InstrTable.try_emplace(0x4C, "JMP", &Cpu::Instruction_JMP,
-                             &Cpu::AbsoluteAddressing, 3);
-    m_InstrTable.try_emplace(0x4D, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x4E, "LSR", &Cpu::Instruction_LSR,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0x50, "BVC", &Cpu::Instruction_BVC,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0x51, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0x55, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0x56, "LSR", &Cpu::Instruction_LSR,
-                             &Cpu::IndexedZeroPageAddressingX, 6);
-    m_InstrTable.try_emplace(0x58, "CLI", &Cpu::Instruction_CLI, nullptr, 2);
-    m_InstrTable.try_emplace(0x59, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0x5D, "EOR", &Cpu::Instruction_EOR,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0x5E, "LSR", &Cpu::Instruction_LSR,
-                             &Cpu::IndexedAbsoluteAddressingX, 7);
-    m_InstrTable.try_emplace(0x60, "RTS", &Cpu::Instruction_RTS, nullptr, 6);
-    m_InstrTable.try_emplace(0x61, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0x65, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x66, "ROR", &Cpu::Instruction_ROR,
-                             &Cpu::ZeroPageAddressing, 5);
-    m_InstrTable.try_emplace(0x68, "PLA", &Cpu::Instruction_PLA, nullptr, 4);
-    m_InstrTable.try_emplace(0x69, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0x6A, "ROR", &Cpu::Instruction_ROR_AcummAddr,
-                             nullptr, 2);
-    m_InstrTable.try_emplace(0x6C, "JMP", &Cpu::Instruction_JMP,
-                             &Cpu::AbsoluteIndirectAddressing, 5);
-    m_InstrTable.try_emplace(0x6D, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x6E, "ROR", &Cpu::Instruction_ROR,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0x70, "BVS", &Cpu::Instruction_BVS,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0x71, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0x75, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0x76, "ROR", &Cpu::Instruction_ROR,
-                             &Cpu::IndexedZeroPageAddressingX, 6);
-    m_InstrTable.try_emplace(0x78, "SEI", &Cpu::Instruction_SEI, nullptr, 2);
-    m_InstrTable.try_emplace(0x79, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0x7D, "ADC", &Cpu::Instruction_ADC,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0x7E, "ROR", &Cpu::Instruction_ROR,
-                             &Cpu::IndexedAbsoluteAddressingX, 7);
-    m_InstrTable.try_emplace(0x81, "STA", &Cpu::Instruction_STA,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0x84, "STY", &Cpu::Instruction_STY,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x85, "STA", &Cpu::Instruction_STA,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x86, "STX", &Cpu::Instruction_STX,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0x88, "DEY", &Cpu::Instruction_DEY, nullptr, 2);
-    m_InstrTable.try_emplace(0x8A, "TXA", &Cpu::Instruction_TXA, nullptr, 2);
-    m_InstrTable.try_emplace(0x8C, "STY", &Cpu::Instruction_STY,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x8D, "STA", &Cpu::Instruction_STA,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x8E, "STX", &Cpu::Instruction_STX,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0x90, "BCC", &Cpu::Instruction_BCC,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0x91, "STA", &Cpu::Instruction_STA,
-                             &Cpu::IndirectIndexedAddressingY, 6);
-    m_InstrTable.try_emplace(0x94, "STY", &Cpu::Instruction_STY,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0x95, "STA", &Cpu::Instruction_STA,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0x96, "STX", &Cpu::Instruction_STX,
-                             &Cpu::IndexedZeroPageAddressingY, 4);
-    m_InstrTable.try_emplace(0x98, "TYA", &Cpu::Instruction_TYA, nullptr, 2);
-    m_InstrTable.try_emplace(0x99, "STA", &Cpu::Instruction_STA,
-                             &Cpu::IndexedAbsoluteAddressingY, 5);
-    m_InstrTable.try_emplace(0x9A, "TXS", &Cpu::Instruction_TXS, nullptr, 2);
-    m_InstrTable.try_emplace(0x9D, "STA", &Cpu::Instruction_STA,
-                             &Cpu::IndexedAbsoluteAddressingX, 5);
-    m_InstrTable.try_emplace(0xA0, "LDY", &Cpu::Instruction_LDY,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xA1, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0xA2, "LDX", &Cpu::Instruction_LDX,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xA4, "LDY", &Cpu::Instruction_LDY,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xA5, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xA6, "LDX", &Cpu::Instruction_LDX,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xA8, "TAY", &Cpu::Instruction_TAY, nullptr, 2);
-    m_InstrTable.try_emplace(0xA9, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xAA, "TAX", &Cpu::Instruction_TAX, nullptr, 2);
-    m_InstrTable.try_emplace(0xAC, "LDY", &Cpu::Instruction_LDY,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xAD, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xAE, "LDX", &Cpu::Instruction_LDX,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xB0, "BCS", &Cpu::Instruction_BCS,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0xB1, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0xB4, "LDY", &Cpu::Instruction_LDY,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0xB5, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0xB6, "LDX", &Cpu::Instruction_LDX,
-                             &Cpu::IndexedZeroPageAddressingY, 4);
-    m_InstrTable.try_emplace(0xB8, "CLV", &Cpu::Instruction_CLV, nullptr, 2);
-    m_InstrTable.try_emplace(0xB9, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0xBA, "TSX", &Cpu::Instruction_TSX, nullptr, 2);
-    m_InstrTable.try_emplace(0xBC, "LDY", &Cpu::Instruction_LDY,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0xBD, "LDA", &Cpu::Instruction_LDA,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0xBE, "LDX", &Cpu::Instruction_LDX,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0xC0, "CPY", &Cpu::Instruction_CPY,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xC1, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0xC4, "CPY", &Cpu::Instruction_CPY,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xC5, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xC6, "DEC", &Cpu::Instruction_DEC,
-                             &Cpu::ZeroPageAddressing, 5);
-    m_InstrTable.try_emplace(0xC8, "INY", &Cpu::Instruction_INY, nullptr, 2);
-    m_InstrTable.try_emplace(0xC9, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xCA, "DEX", &Cpu::Instruction_DEX, nullptr, 2);
-    m_InstrTable.try_emplace(0xCC, "CPY", &Cpu::Instruction_CPY,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xCD, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xCE, "DEC", &Cpu::Instruction_DEC,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0xD0, "BNE", &Cpu::Instruction_BNE,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0xD1, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0xD5, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0xD6, "DEC", &Cpu::Instruction_DEC,
-                             &Cpu::IndexedZeroPageAddressingX, 6);
-    m_InstrTable.try_emplace(0xD8, "CLD", &Cpu::Instruction_CLD, nullptr, 2);
-    m_InstrTable.try_emplace(0xD9, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0xDD, "CMP", &Cpu::Instruction_CMP,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0xDE, "DEC", &Cpu::Instruction_DEC,
-                             &Cpu::IndexedAbsoluteAddressingX, 7);
-    m_InstrTable.try_emplace(0xE0, "CPX", &Cpu::Instruction_CPX,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xE1, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::IndexedIndirectAddressingX, 6);
-    m_InstrTable.try_emplace(0xE4, "CPX", &Cpu::Instruction_CPX,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xE5, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::ZeroPageAddressing, 3);
-    m_InstrTable.try_emplace(0xE6, "INC", &Cpu::Instruction_INC,
-                             &Cpu::ZeroPageAddressing, 5);
-    m_InstrTable.try_emplace(0xE8, "INX", &Cpu::Instruction_INX, nullptr, 2);
-    m_InstrTable.try_emplace(0xE9, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::ImmediateAddressing, 2);
-    m_InstrTable.try_emplace(0xEA, "NOP", &Cpu::Instruction_NOP, nullptr, 2);
-    m_InstrTable.try_emplace(0xEC, "CPX", &Cpu::Instruction_CPX,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xED, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::AbsoluteAddressing, 4);
-    m_InstrTable.try_emplace(0xEE, "INC", &Cpu::Instruction_INC,
-                             &Cpu::AbsoluteAddressing, 6);
-    m_InstrTable.try_emplace(0xF0, "BEQ", &Cpu::Instruction_BEQ,
-                             &Cpu::RelativeAddressing, 2);
-    m_InstrTable.try_emplace(0xF1, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::IndirectIndexedAddressingY, 5);
-    m_InstrTable.try_emplace(0xF5, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::IndexedZeroPageAddressingX, 4);
-    m_InstrTable.try_emplace(0xF6, "INC", &Cpu::Instruction_INC,
-                             &Cpu::IndexedZeroPageAddressingX, 6);
-    m_InstrTable.try_emplace(0xF8, "SED", &Cpu::Instruction_SED, nullptr, 2);
-    m_InstrTable.try_emplace(0xF9, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::IndexedAbsoluteAddressingY, 4);
-    m_InstrTable.try_emplace(0xFD, "SBC", &Cpu::Instruction_SBC,
-                             &Cpu::IndexedAbsoluteAddressingX, 4);
-    m_InstrTable.try_emplace(0xFE, "INC", &Cpu::Instruction_INC,
-                             &Cpu::IndexedAbsoluteAddressingX, 7);
+constexpr Cpu::Instruction::Instruction(const std::string_view name,
+                                        const FuncPtr executeInstruction,
+                                const FuncPtr execureAddressingMode,
+                                const uint8_t cycles)
+    : m_Name{name},
+      m_ExecuteInstruction{executeInstruction},
+      m_ExecureAddressingMode{execureAddressingMode},
+      m_Cycles{cycles} {}
+
+using namespace std::literals::string_view_literals;
+
+Cpu::Instruction Cpu::FindInstruction(const uint8_t opCode) {
+    static constexpr std::array<std::pair<uint8_t, Cpu::Instruction>, 151>
+        lookupTable{
+            {{0x00,
+              Cpu::Instruction("BRK"sv, &Cpu::Instruction_BRK, nullptr, 7)},
+             {0x01, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0x05, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x06, Cpu::Instruction("ASL"sv, &Cpu::Instruction_ASL,
+                                      &Cpu::ZeroPageAddressing, 5)},
+             {0x08,
+              Cpu::Instruction("PHP"sv, &Cpu::Instruction_PHP, nullptr, 3)},
+             {0x09, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0x0A, Cpu::Instruction("ASL"sv, &Cpu::Instruction_ASL_AcummAddr,
+                                      nullptr, 2)},
+             {0x0D, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x0E, Cpu::Instruction("ASL"sv, &Cpu::Instruction_ASL,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0x10, Cpu::Instruction("BPL"sv, &Cpu::Instruction_BPL,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0x11, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0x15, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0x16, Cpu::Instruction("ASL"sv, &Cpu::Instruction_ASL,
+                                      &Cpu::IndexedZeroPageAddressingX, 6)},
+             {0x18,
+              Cpu::Instruction("CLC"sv, &Cpu::Instruction_CLC, nullptr, 2)},
+             {0x19, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0x1D, Cpu::Instruction("ORA"sv, &Cpu::Instruction_ORA,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0x1E, Cpu::Instruction("ASL"sv, &Cpu::Instruction_ASL,
+                                      &Cpu::IndexedAbsoluteAddressingX, 7)},
+             {0x20, Cpu::Instruction("JSR"sv, &Cpu::Instruction_JSR,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0x21, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0x24, Cpu::Instruction("BIT"sv, &Cpu::Instruction_BIT,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x25, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x26, Cpu::Instruction("ROL"sv, &Cpu::Instruction_ROL,
+                                      &Cpu::ZeroPageAddressing, 5)},
+             {0x28,
+              Cpu::Instruction("PLP"sv, &Cpu::Instruction_PLP, nullptr, 4)},
+             {0x29, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0x2A, Cpu::Instruction("ROL"sv, &Cpu::Instruction_ROL_AcummAddr,
+                                      nullptr, 2)},
+             {0x2C, Cpu::Instruction("BIT"sv, &Cpu::Instruction_BIT,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x2D, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x2E, Cpu::Instruction("ROL"sv, &Cpu::Instruction_ROL,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0x30, Cpu::Instruction("BMI"sv, &Cpu::Instruction_BMI,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0x31, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0x35, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0x36, Cpu::Instruction("ROL"sv, &Cpu::Instruction_ROL,
+                                      &Cpu::IndexedZeroPageAddressingX, 6)},
+             {0x38,
+              Cpu::Instruction("SEC"sv, &Cpu::Instruction_SEC, nullptr, 2)},
+             {0x39, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0x3D, Cpu::Instruction("AND"sv, &Cpu::Instruction_AND,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0x3E, Cpu::Instruction("ROL"sv, &Cpu::Instruction_ROL,
+                                      &Cpu::IndexedAbsoluteAddressingX, 7)},
+             {0x40,
+              Cpu::Instruction("RTI"sv, &Cpu::Instruction_RTI, nullptr, 6)},
+             {0x41, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0x45, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x46, Cpu::Instruction("LSR"sv, &Cpu::Instruction_LSR,
+                                      &Cpu::ZeroPageAddressing, 5)},
+             {0x48,
+              Cpu::Instruction("PHA"sv, &Cpu::Instruction_PHA, nullptr, 3)},
+             {0x49, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0x4A, Cpu::Instruction("LSR"sv, &Cpu::Instruction_LSR_AcummAddr,
+                                      nullptr, 2)},
+             {0x4C, Cpu::Instruction("JMP"sv, &Cpu::Instruction_JMP,
+                                      &Cpu::AbsoluteAddressing, 3)},
+             {0x4D, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x4E, Cpu::Instruction("LSR"sv, &Cpu::Instruction_LSR,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0x50, Cpu::Instruction("BVC"sv, &Cpu::Instruction_BVC,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0x51, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0x55, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0x56, Cpu::Instruction("LSR"sv, &Cpu::Instruction_LSR,
+                                      &Cpu::IndexedZeroPageAddressingX, 6)},
+             {0x58,
+              Cpu::Instruction("CLI"sv, &Cpu::Instruction_CLI, nullptr, 2)},
+             {0x59, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0x5D, Cpu::Instruction("EOR"sv, &Cpu::Instruction_EOR,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0x5E, Cpu::Instruction("LSR"sv, &Cpu::Instruction_LSR,
+                                      &Cpu::IndexedAbsoluteAddressingX, 7)},
+             {0x60,
+              Cpu::Instruction("RTS"sv, &Cpu::Instruction_RTS, nullptr, 6)},
+             {0x61, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0x65, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x66, Cpu::Instruction("ROR"sv, &Cpu::Instruction_ROR,
+                                      &Cpu::ZeroPageAddressing, 5)},
+             {0x68,
+              Cpu::Instruction("PLA"sv, &Cpu::Instruction_PLA, nullptr, 4)},
+             {0x69, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0x6A, Cpu::Instruction("ROR"sv, &Cpu::Instruction_ROR_AcummAddr,
+                                      nullptr, 2)},
+             {0x6C, Cpu::Instruction("JMP"sv, &Cpu::Instruction_JMP,
+                                      &Cpu::AbsoluteIndirectAddressing, 5)},
+             {0x6D, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x6E, Cpu::Instruction("ROR"sv, &Cpu::Instruction_ROR,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0x70, Cpu::Instruction("BVS"sv, &Cpu::Instruction_BVS,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0x71, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0x75, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0x76, Cpu::Instruction("ROR"sv, &Cpu::Instruction_ROR,
+                                      &Cpu::IndexedZeroPageAddressingX, 6)},
+             {0x78,
+              Cpu::Instruction("SEI"sv, &Cpu::Instruction_SEI, nullptr, 2)},
+             {0x79, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0x7D, Cpu::Instruction("ADC"sv, &Cpu::Instruction_ADC,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0x7E, Cpu::Instruction("ROR"sv, &Cpu::Instruction_ROR,
+                                      &Cpu::IndexedAbsoluteAddressingX, 7)},
+             {0x81, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0x84, Cpu::Instruction("STY"sv, &Cpu::Instruction_STY,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x85, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x86, Cpu::Instruction("STX"sv, &Cpu::Instruction_STX,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0x88,
+              Cpu::Instruction("DEY"sv, &Cpu::Instruction_DEY, nullptr, 2)},
+             {0x8A,
+              Cpu::Instruction("TXA"sv, &Cpu::Instruction_TXA, nullptr, 2)},
+             {0x8C, Cpu::Instruction("STY"sv, &Cpu::Instruction_STY,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x8D, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x8E, Cpu::Instruction("STX"sv, &Cpu::Instruction_STX,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0x90, Cpu::Instruction("BCC"sv, &Cpu::Instruction_BCC,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0x91, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::IndirectIndexedAddressingY, 6)},
+             {0x94, Cpu::Instruction("STY"sv, &Cpu::Instruction_STY,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0x95, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0x96, Cpu::Instruction("STX"sv, &Cpu::Instruction_STX,
+                                      &Cpu::IndexedZeroPageAddressingY, 4)},
+             {0x98,
+              Cpu::Instruction("TYA"sv, &Cpu::Instruction_TYA, nullptr, 2)},
+             {0x99, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::IndexedAbsoluteAddressingY, 5)},
+             {0x9A,
+              Cpu::Instruction("TXS"sv, &Cpu::Instruction_TXS, nullptr, 2)},
+             {0x9D, Cpu::Instruction("STA"sv, &Cpu::Instruction_STA,
+                                      &Cpu::IndexedAbsoluteAddressingX, 5)},
+             {0xA0, Cpu::Instruction("LDY"sv, &Cpu::Instruction_LDY,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xA1, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0xA2, Cpu::Instruction("LDX"sv, &Cpu::Instruction_LDX,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xA4, Cpu::Instruction("LDY"sv, &Cpu::Instruction_LDY,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xA5, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xA6, Cpu::Instruction("LDX"sv, &Cpu::Instruction_LDX,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xA8,
+              Cpu::Instruction("TAY"sv, &Cpu::Instruction_TAY, nullptr, 2)},
+             {0xA9, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xAA,
+              Cpu::Instruction("TAX"sv, &Cpu::Instruction_TAX, nullptr, 2)},
+             {0xAC, Cpu::Instruction("LDY"sv, &Cpu::Instruction_LDY,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xAD, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xAE, Cpu::Instruction("LDX"sv, &Cpu::Instruction_LDX,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xB0, Cpu::Instruction("BCS"sv, &Cpu::Instruction_BCS,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0xB1, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0xB4, Cpu::Instruction("LDY"sv, &Cpu::Instruction_LDY,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0xB5, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0xB6, Cpu::Instruction("LDX"sv, &Cpu::Instruction_LDX,
+                                      &Cpu::IndexedZeroPageAddressingY, 4)},
+             {0xB8,
+              Cpu::Instruction("CLV"sv, &Cpu::Instruction_CLV, nullptr, 2)},
+             {0xB9, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0xBA,
+              Cpu::Instruction("TSX"sv, &Cpu::Instruction_TSX, nullptr, 2)},
+             {0xBC, Cpu::Instruction("LDY"sv, &Cpu::Instruction_LDY,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0xBD, Cpu::Instruction("LDA"sv, &Cpu::Instruction_LDA,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0xBE, Cpu::Instruction("LDX"sv, &Cpu::Instruction_LDX,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0xC0, Cpu::Instruction("CPY"sv, &Cpu::Instruction_CPY,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xC1, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0xC4, Cpu::Instruction("CPY"sv, &Cpu::Instruction_CPY,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xC5, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xC6, Cpu::Instruction("DEC"sv, &Cpu::Instruction_DEC,
+                                      &Cpu::ZeroPageAddressing, 5)},
+             {0xC8,
+              Cpu::Instruction("INY"sv, &Cpu::Instruction_INY, nullptr, 2)},
+             {0xC9, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xCA,
+              Cpu::Instruction("DEX"sv, &Cpu::Instruction_DEX, nullptr, 2)},
+             {0xCC, Cpu::Instruction("CPY"sv, &Cpu::Instruction_CPY,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xCD, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xCE, Cpu::Instruction("DEC"sv, &Cpu::Instruction_DEC,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0xD0, Cpu::Instruction("BNE"sv, &Cpu::Instruction_BNE,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0xD1, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0xD5, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0xD6, Cpu::Instruction("DEC"sv, &Cpu::Instruction_DEC,
+                                      &Cpu::IndexedZeroPageAddressingX, 6)},
+             {0xD8,
+              Cpu::Instruction("CLD"sv, &Cpu::Instruction_CLD, nullptr, 2)},
+             {0xD9, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0xDD, Cpu::Instruction("CMP"sv, &Cpu::Instruction_CMP,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0xDE, Cpu::Instruction("DEC"sv, &Cpu::Instruction_DEC,
+                                      &Cpu::IndexedAbsoluteAddressingX, 7)},
+             {0xE0, Cpu::Instruction("CPX"sv, &Cpu::Instruction_CPX,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xE1, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::IndexedIndirectAddressingX, 6)},
+             {0xE4, Cpu::Instruction("CPX"sv, &Cpu::Instruction_CPX,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xE5, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::ZeroPageAddressing, 3)},
+             {0xE6, Cpu::Instruction("INC"sv, &Cpu::Instruction_INC,
+                                      &Cpu::ZeroPageAddressing, 5)},
+             {0xE8,
+              Cpu::Instruction("INX"sv, &Cpu::Instruction_INX, nullptr, 2)},
+             {0xE9, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::ImmediateAddressing, 2)},
+             {0xEA,
+              Cpu::Instruction("NOP"sv, &Cpu::Instruction_NOP, nullptr, 2)},
+             {0xEC, Cpu::Instruction("CPX"sv, &Cpu::Instruction_CPX,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xED, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::AbsoluteAddressing, 4)},
+             {0xEE, Cpu::Instruction("INC"sv, &Cpu::Instruction_INC,
+                                      &Cpu::AbsoluteAddressing, 6)},
+             {0xF0, Cpu::Instruction("BEQ"sv, &Cpu::Instruction_BEQ,
+                                      &Cpu::RelativeAddressing, 2)},
+             {0xF1, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::IndirectIndexedAddressingY, 5)},
+             {0xF5, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::IndexedZeroPageAddressingX, 4)},
+             {0xF6, Cpu::Instruction("INC"sv, &Cpu::Instruction_INC,
+                                      &Cpu::IndexedZeroPageAddressingX, 6)},
+             {0xF8,
+              Cpu::Instruction("SED"sv, &Cpu::Instruction_SED, nullptr, 2)},
+             {0xF9, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::IndexedAbsoluteAddressingY, 4)},
+             {0xFD, Cpu::Instruction("SBC"sv, &Cpu::Instruction_SBC,
+                                      &Cpu::IndexedAbsoluteAddressingX, 4)},
+             {0xFE, Cpu::Instruction("INC"sv, &Cpu::Instruction_INC,
+                                      &Cpu::IndexedAbsoluteAddressingX, 7)}}};
+
+    static constexpr auto map =
+        Map<uint8_t, Cpu::Instruction, lookupTable.size()>{{lookupTable}};
+
+    return map.at(opCode);
 }
 
 }  // namespace cpuemulator
