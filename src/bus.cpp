@@ -15,17 +15,17 @@ Bus::Bus() { memset(m_CpuRam, 0, 0x800); }
 Bus::~Bus() { delete[] m_CpuRam; }
 
 void Bus::SetCartridge(Cartridge* cartridge) {
-    assert(m_Cartridge != nullptr);
+    assert(cartridge != nullptr);
     m_Cartridge = cartridge;
 }
 
 void Bus::SetDma(Dma* dma) {
-    assert(m_Dma != nullptr);
+    assert(dma != nullptr);
     m_Dma = dma;
 }
 
 void Bus::SetPpu(Ppu* ppu) {
-    assert(m_Ppu != nullptr);
+    assert(ppu != nullptr);
     m_Ppu = ppu;
 }
 

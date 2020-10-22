@@ -1,8 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #pragma once
 #include <cinttypes>
-#include <functional>
-#include <map>
+#include <string_view>
 
 #include "include/enums.h"
 
@@ -12,7 +11,7 @@ class Bus;
 
 class Cpu {
    public:
-    Cpu();
+    Cpu() = default;
     ~Cpu() = default;
 
     void SetBus(Bus *bus);
@@ -53,6 +52,19 @@ class Cpu {
     inline uint8_t GetStackPointer() const { return m_StackPointer; }
     inline uint16_t GetProgramCounter() const { return m_ProgramCounter; }
 
+    using FuncPtr = void (Cpu::*)();
+    struct Instruction {
+        constexpr Instruction(const std::string_view name,
+                              const FuncPtr executeInstruction,
+                              const FuncPtr execureAddressingMode,
+                               const uint8_t cycles);
+
+        std::string_view m_Name;
+        const FuncPtr m_ExecuteInstruction;
+        const FuncPtr m_ExecureAddressingMode;
+        uint8_t m_Cycles;
+    };
+
    private:
     Bus *m_Bus;
 
@@ -75,22 +87,6 @@ class Cpu {
     uint8_t m_OpCode = 0x00;
     uint8_t m_Cycles = 0x00;
 
-    struct Instruction {
-        Instruction(const std::string &name,
-                    std::function<void(Cpu *)> funcOperate,
-                    std::function<void(Cpu *)> addressingMode, uint8_t cycles)
-            : m_Name{name},
-              m_FuncOperate{funcOperate},
-              m_AddressingMode{addressingMode},
-              m_Cycles{cycles} {}
-
-        std::string m_Name;
-        std::function<void(Cpu *)> m_FuncOperate;
-        std::function<void(Cpu *)> m_AddressingMode;
-        uint8_t m_Cycles = 0;
-    };
-    std::map<uint8_t, Instruction> m_InstrTable;
-
     bool m_AddressingModeNeedsAdditionalCycle = false;
     bool m_InstructionNeedsAdditionalCycle = false;
 
@@ -103,6 +99,9 @@ class Cpu {
 
     uint16_t ReadDoubleWordFromProgramCounter();
 
+    Instruction FindInstruction(const uint8_t opCode);
+
+   public:
     void ImmediateAddressing();
 
     void ZeroPageAddressing();
@@ -246,8 +245,6 @@ class Cpu {
     void Instruction_TXS();
 
     void Instruction_TYA();
-
-    void RegisterAllInstructionSet();
 };
 
 }  // namespace cpuemulator
