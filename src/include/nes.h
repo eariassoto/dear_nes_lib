@@ -3,7 +3,10 @@
 
 #include <cstdint>
 
-#include "include/virtual6502.h"
+#include "include/bus.h"
+#include "include/cpu.h"
+#include "include/dma.h"
+#include "include/ppu.h"
 
 namespace cpuemulator {
 
@@ -16,7 +19,6 @@ class Nes {
     Nes();
     ~Nes();
 
-    uint8_t m_Controllers[2] = {0};
     uint64_t GetSystemClockCounter() const;
 
     void CpuWrite(uint16_t address, uint8_t data);
@@ -31,12 +33,12 @@ class Nes {
     bool IsCartridgeLoaded() const;
 
     // TODO: provide api and make it private
-    Ppu* m_Ppu = nullptr;
-    Virtual6502<Nes>* m_Virtual6502 = nullptr;
+    Bus m_Bus;
+    Dma m_Dma;
+    Ppu m_Ppu;
+    Cpu m_Cpu;
 
    private:
-
-    uint8_t* m_CpuRam = new uint8_t[0x800];
 
     Cartridge* m_Cartridge = nullptr;
 
@@ -44,20 +46,8 @@ class Nes {
 
     uint32_t m_SystemClockCounter = 0;
 
-    uint8_t m_DmaPage = 0x00;
-    uint8_t m_DmaAddress = 0x00;
-    uint8_t m_DmaData = 0x00;
-
-    bool m_DmaTransfer = false;
-    bool m_DmaWait = true;
-
     uint8_t m_ControllerState[2] = {0};
 
-    inline uint16_t GetRealRamAddress(uint16_t address) const {
-        return address & 0x07FF;
-    }
-    inline uint16_t GetRealPpuAddress(uint16_t address) const {
-        return address & 0x0007;
-    }
+    
 };
 }  // namespace cpuemulator
