@@ -1,7 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #pragma once
 #include <cinttypes>
-#include "include/enums.h"
+#include "virtual-nes/enums.h"
 
 namespace cpuemulator {
 

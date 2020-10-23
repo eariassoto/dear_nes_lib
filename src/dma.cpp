@@ -1,9 +1,9 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/dma.h"
+#include "virtual-nes/dma.h"
 
 #include <cassert>
 
-#include "include/bus.h"
+#include "virtual-nes/bus.h"
 
 namespace cpuemulator {
 

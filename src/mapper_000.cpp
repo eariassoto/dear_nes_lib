@@ -1,5 +1,5 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/mapper_000.h"
+#include "virtual-nes/mapper_000.h"
 
 namespace cpuemulator {
 Mapper_000::Mapper_000(uint8_t prgBanks, uint8_t chrBanks)

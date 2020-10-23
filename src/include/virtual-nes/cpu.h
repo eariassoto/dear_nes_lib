@@ -3,7 +3,7 @@
 #include <cinttypes>
 #include <string_view>
 
-#include "include/enums.h"
+#include "virtual-nes/enums.h"
 
 namespace cpuemulator {
 

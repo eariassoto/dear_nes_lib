@@ -1,9 +1,9 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/ppu.h"
+#include "virtual-nes/ppu.h"
 
 #include <cassert>
 
-#include "include/cartridge.h"
+#include "virtual-nes/cartridge.h"
 
 namespace cpuemulator {
 

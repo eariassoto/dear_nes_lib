@@ -1,11 +1,11 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/cpu.h"
+#include "virtual-nes/cpu.h"
 
 #include <array>
 #include <cassert>
 
-#include "include/array_map.h"
-#include "include/bus.h"
+#include "virtual-nes/array_map.hpp"
+#include "virtual-nes/bus.h"
 
 namespace cpuemulator {
 

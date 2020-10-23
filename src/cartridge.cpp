@@ -1,9 +1,9 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/cartridge.h"
+#include "virtual-nes/cartridge.h"
 
 #include <fstream>
 
-#include "include/mapper_000.h"
+#include "virtual-nes/mapper_000.h"
 
 namespace cpuemulator {
 

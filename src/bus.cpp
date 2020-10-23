@@ -1,12 +1,12 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/bus.h"
+#include "virtual-nes/bus.h"
 
 #include <cstring>
 #include <cassert>
 
-#include "include/cartridge.h"
-#include "include/dma.h"
-#include "include/ppu.h"
+#include "virtual-nes/cartridge.h"
+#include "virtual-nes/dma.h"
+#include "virtual-nes/ppu.h"
 
 namespace cpuemulator {
 

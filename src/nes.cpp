@@ -1,10 +1,10 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "include/nes.h"
+#include "virtual-nes/nes.h"
 
 #include <iostream>
 #include <cassert>
-#include "include/cartridge.h"
-#include "include/enums.h"
+#include "virtual-nes/cartridge.h"
+#include "virtual-nes/enums.h"
 
 namespace cpuemulator {
 

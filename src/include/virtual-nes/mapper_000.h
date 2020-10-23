@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "include/mapper.h"
+#include "virtual-nes/mapper.h"
 
 namespace cpuemulator {
 

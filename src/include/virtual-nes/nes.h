@@ -3,10 +3,10 @@
 
 #include <cstdint>
 
-#include "include/bus.h"
-#include "include/cpu.h"
-#include "include/dma.h"
-#include "include/ppu.h"
+#include "virtual-nes/bus.h"
+#include "virtual-nes/cpu.h"
+#include "virtual-nes/dma.h"
+#include "virtual-nes/ppu.h"
 
 namespace cpuemulator {
 
