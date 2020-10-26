@@ -19,9 +19,9 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-Docs
-====
+.. toctree::
+   :maxdepth: 1
+   :caption: Class reference
+   :name: sec-class-ref
 
-.. doxygenclass:: cpuemulator::Ppu
-   :members:
-   :undoc-members:
+   classes/index
