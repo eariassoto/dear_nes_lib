@@ -1,5 +1,5 @@
 Array Map
 =========
 
-.. doxygenclass:: Map
+.. doxygenstruct:: Map
    :members:

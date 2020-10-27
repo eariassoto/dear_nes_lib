@@ -1,5 +1,5 @@
-Class Reference
-=========
+Virtual NES API
+===============
 
 .. toctree::
    :maxdepth: 1

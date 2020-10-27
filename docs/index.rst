@@ -6,11 +6,26 @@
 Welcome to Virtual NES's documentation!
 =======================================
 
+Building the Project
+====================
+
+Hello World!
+
+Getting Started
+===============
+
+Hello World!
+
+Pending features
+================
+Hello World!
+   
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Class reference:
+   :name: sec-class-ref
 
-
+   classes/index
 
 Indices and tables
 ==================
@@ -18,10 +33,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Class reference
-   :name: sec-class-ref
-
-   classes/index
