@@ -20,6 +20,10 @@ int Ppu::GetColorFromPalette(uint8_t palette, uint8_t pixel) {
 
 const int* Ppu::GetOutputScreen() const { return m_OutputScreen; }
 
+bool Ppu::IsFrameCompleted() const { return m_FrameIsCompleted; }
+
+void Ppu::StartNewFrame() { m_FrameIsCompleted = false; }
+
 uint8_t Ppu::CpuRead(uint16_t address, bool readOnly) {
     uint8_t data = 0x00;
     switch (address) {
@@ -110,7 +114,7 @@ void Ppu::CpuWrite(uint16_t address, uint8_t data) {
 }
 
 void Ppu::ConnectCatridge(Cartridge* cartridge) {
-    //Logger::Get().Log("PPU", "Connecting cartridge");
+    // Logger::Get().Log("PPU", "Connecting cartridge");
     m_Cartridge = cartridge;
 }
 
@@ -123,7 +127,7 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
         data = m_PatternTables[(address & 0x1000) >> 12][address & 0x0FFF];
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
-        if (m_Cartridge->mirror == Cartridge::MIRROR::VERTICAL) {
+        if (m_Cartridge->GetMirroringMode() == Cartridge::MIRROR::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -133,7 +137,8 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
                 data = m_Nametables[0][address & 0x03FF];
             if (address >= 0x0C00 && address <= 0x0FFF)
                 data = m_Nametables[1][address & 0x03FF];
-        } else if (m_Cartridge->mirror == Cartridge::MIRROR::HORIZONTAL) {
+        } else if (m_Cartridge->GetMirroringMode() ==
+                   Cartridge::MIRROR::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -162,7 +167,7 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
         m_PatternTables[(address & 0x1000) >> 12][address & 0x0FFF] = data;
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
-        if (m_Cartridge->mirror == Cartridge::MIRROR::VERTICAL) {
+        if (m_Cartridge->GetMirroringMode() == Cartridge::MIRROR::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -172,7 +177,8 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
                 m_Nametables[0][address & 0x03FF] = data;
             if (address >= 0x0C00 && address <= 0x0FFF)
                 m_Nametables[1][address & 0x03FF] = data;
-        } else if (m_Cartridge->mirror == Cartridge::MIRROR::HORIZONTAL) {
+        } else if (m_Cartridge->GetMirroringMode() ==
+                   Cartridge::MIRROR::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -245,6 +251,14 @@ void Ppu::TransferAddressX() {
         m_VramAddress.coarse_x = m_TramAddress.coarse_x;
     }
 };
+
+bool Ppu::NeedsToDoNMI() {
+    if (m_DoNMI) {
+        m_DoNMI = false;
+        return true;
+    }
+    return false;
+}
 
 size_t Ppu::GetNextState(std::array<PpuAction, 3>& nextActions) {
     /*
@@ -422,7 +436,7 @@ void Ppu::Clock() {
         ++m_ScanLine;
         if (m_ScanLine >= 261) {
             m_ScanLine = -1;
-            isFrameComplete = true;
+            m_FrameIsCompleted = true;
         }
     }
 }

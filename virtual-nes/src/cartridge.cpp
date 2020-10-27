@@ -48,7 +48,7 @@ void Cartridge::ConstructFromFile(std::ifstream& ifs) {
     }
     m_MapperId = ((header.mapper2 >> 4) << 4) | (header.mapper1 >> 4);
 
-    mirror = (header.mapper1 & 0x01) ? MIRROR::VERTICAL : MIRROR::HORIZONTAL;
+    m_MirroringMode = (header.mapper1 & 0x01) ? MIRROR::VERTICAL : MIRROR::HORIZONTAL;
 
     //Logger::Get().Log("CART", "Mapper ID: {}", m_MapperId);
 
@@ -119,6 +119,10 @@ bool Cartridge::PpuWrite(uint16_t address, uint8_t data) {
         return true;
     }
     return false;
+}
+
+Cartridge::MIRROR Cartridge::GetMirroringMode() const {
+    return m_MirroringMode;
 }
 
 }  // namespace cpuemulator

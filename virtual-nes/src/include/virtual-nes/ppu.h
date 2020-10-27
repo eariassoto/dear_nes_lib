@@ -33,11 +33,21 @@ class Sprite;
 /// byte</typeparam>
 template <typename RegEnumType>
 struct PpuRegister {
+    /// <summary>
+    /// Get a specific register field
+    /// </summary>
+    /// <param name="field"></param>
+    /// <returns></returns>
     bool GetField(RegEnumType field) const {
         const int index = static_cast<int>(field);
         return (m_Register >> index) & 0x01;
     }
 
+    /// <summary>
+    /// Set a specific register field
+    /// </summary>
+    /// <param name="field"></param>
+    /// <param name="value"></param>
     void SetField(RegEnumType field, bool value) {
         const int index = static_cast<int>(field);
         if (value) {
@@ -47,7 +57,16 @@ struct PpuRegister {
         }
     }
 
+    /// <summary>
+    /// Getter for the register value
+    /// </summary>
+    /// <returns></returns>
     uint8_t GetRegister() const { return m_Register; }
+
+    /// <summary>
+    /// Set the entire register value
+    /// </summary>
+    /// <param name="value"></param>
     void SetRegister(uint8_t value) { m_Register = value; }
 
    private:
@@ -92,7 +111,10 @@ union LoopyRegister {
         uint16_t fine_y : 3;
         uint16_t unused : 1;
     };
-
+    /// <summary>
+    /// Actual register. The inner anonymous struct determines
+    /// the fragmentation of the register.
+    /// </summary>
     uint16_t reg = 0x0000;
 };
 
@@ -116,27 +138,98 @@ class Ppu {
 
     ~Ppu();
 
+    /// <summary>
+    /// Handle read requests from the CPU module. The CPU will try to
+    /// read to the different PPU registers. These addresses range
+    /// from $2000 to the $2007. The registers are mirrored in the
+    /// range $2008-$3FFF.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="readOnly"></param>
+    /// <returns></returns>
     uint8_t CpuRead(uint16_t address, bool readOnly = false);
 
+    /// <summary>
+    /// Handle write requests from the CPU module. The CPU will try to
+    /// write to the different PPU registers. These addresses range
+    /// from $2000 to the $2007. The registers are mirrored in the
+    /// range $2008-$3FFF.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="data"></param>
     void CpuWrite(uint16_t address, uint8_t data);
 
+    /// <summary>
+    /// Add the reference to the cartridge. This will be refactored in the future.
+    /// </summary>
+    /// <param name="cartridge"></param>
     void ConnectCatridge(Cartridge* cartridge);
+
+    /// <summary>
+    /// Perform a tick PPU routine.
+    /// </summary>
     void Clock();
 
+    /// <summary>
+    /// Handle a read request from the PPU memory. This routine will prioritize
+    /// the cartridge read routine over the PPU space address.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="readOnly"></param>
+    /// <returns></returns>
     uint8_t PpuRead(uint16_t address, bool readOnly = false);
+    
+    /// <summary>
+    /// Handle a write request to the PPU memory. This routine will prioritize
+    /// the cartridge write routine over the PPU space address.
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="data"></param>
     void PpuWrite(uint16_t address, uint8_t data);
 
+    /// <summary>
+    /// Retrieve a color from the palette. For more info refer to:
+    /// https://wiki.nesdev.com/w/index.php/PPU_palettes
+    /// </summary>
+    /// <param name="palette">Index of the palette to choose a color from</param>
+    /// <param name="pixel">Index of the color within the palette</param>
+    /// <returns></returns>
     int GetColorFromPalette(uint8_t palette, uint8_t pixel);
 
+    /// <summary>
+    /// Return the raw data of the output screen. Each element is a color
+    /// pixel in format ARGB.
+    /// </summary>
+    /// <returns></returns>
     const int* GetOutputScreen() const;
 
-    // TODO: This should be private
-    bool isFrameComplete = false;
+    /// <summary>
+    /// Return true when the PPU has finished processing a frame. This will be
+    /// refactored in the future.
+    /// </summary>
+    /// <returns></returns>
+    bool IsFrameCompleted() const;
 
-    // TODO Made this private and provide callbacks, or do post update
-    bool m_DoNMI = false;
+    /// <summary>
+    /// Start a new PPU frame. This will be refactored in the future. 
+    /// </summary>
+    void StartNewFrame();
 
-    // TODO: Provide Api Call
+    /// <summary>
+    /// This will return true when a external actor needs to know if the PPU
+    /// has done a NMI so that it can do further calls. This will set the internal
+    /// flag immediately to false. This is also hack-ish so it will be refactored
+    /// in the future.
+    /// </summary>
+    /// <returns></returns>
+    bool NeedsToDoNMI();
+
+    /// <summary>
+    /// PPU OAM memory pointer. This is a hack-ish way to write to the OAM. In the
+    /// DMA tranfer, the data will be writing in order. This means that the tranfer will
+    /// copy the data defined in ObjectAttributeEntry in order, 64 times. This will be
+    /// refactored for a more readable process.
+    /// </summary>
     uint8_t* m_OAMPtr = (uint8_t*)m_OAM;
 
    private:
@@ -245,6 +338,10 @@ class Ppu {
 
     bool m_SpriteZeroHitPossible = false;
     bool m_SpriteZeroBeingRendered = false;
+
+    bool m_FrameIsCompleted = false;
+
+    bool m_DoNMI = false;
 
     // Colors are in format ARGB
     // Table taken from https://wiki.nesdev.com/w/index.php/PPU_palettes

@@ -3,7 +3,7 @@
 
 namespace cpuemulator {
 Mapper_000::Mapper_000(uint8_t prgBanks, uint8_t chrBanks)
-    : Mapper{prgBanks, chrBanks} {}
+    : IMapper{prgBanks, chrBanks} {}
 
 bool Mapper_000::CpuMapRead(uint16_t addr, uint32_t& mappedAddr) {
     if (addr >= 0x8000 && addr <= 0xFFFF) {

@@ -1,8 +1,9 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include "virtual-nes/nes.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
+
 #include "virtual-nes/cartridge.h"
 #include "virtual-nes/enums.h"
 
@@ -17,11 +18,19 @@ Nes::Nes() {
     m_Cpu.SetBus(&m_Bus);
 }
 
-Nes::~Nes() { delete m_Cartridge; }
+Nes::~Nes() {
+    if (m_Cartridge != nullptr) {
+        delete m_Cartridge;
+    }
+}
 
 uint64_t Nes::GetSystemClockCounter() const { return m_SystemClockCounter; }
 
 void Nes::InsertCatridge(Cartridge* cartridge) {
+    // TODO: Loading more than one cartridge will leam memory.
+    // Consider having a cartridge manager that will handle/swap
+    // the cartridge data
+
     // Logger::Get().Log("BUS", "Inserting cartridge");
     m_Cartridge = cartridge;
     m_Bus.SetCartridge(cartridge);
@@ -49,7 +58,6 @@ void Nes::Clock() {
                     // todo offer api function
                     auto [addr, data] = m_Dma.GetLastReadData();
                     m_Ppu.m_OAMPtr[addr] = data;
-
                 }
             }
         } else {
@@ -57,8 +65,7 @@ void Nes::Clock() {
         }
     }
 
-    if (m_Ppu.m_DoNMI) {
-        m_Ppu.m_DoNMI = false;
+    if (m_Ppu.NeedsToDoNMI()) {
         m_Cpu.NonMaskableInterrupt();
     }
 
@@ -68,13 +75,13 @@ void Nes::Clock() {
 void Nes::DoFrame() {
     do {
         Clock();
-    } while (!m_Ppu.isFrameComplete);
+    } while (!m_Ppu.IsFrameCompleted());
 
     do {
         m_Cpu.Clock();
     } while (m_Cpu.IsCurrentInstructionComplete());
 
-    m_Ppu.isFrameComplete = false;
+    m_Ppu.StartNewFrame();
 }
 
 bool Nes::IsCartridgeLoaded() const { return m_IsCartridgeLoaded; }

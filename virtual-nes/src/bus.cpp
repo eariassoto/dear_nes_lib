@@ -10,9 +10,9 @@
 
 namespace cpuemulator {
 
-Bus::Bus() { memset(m_CpuRam, 0, 0x800); }
-
-Bus::~Bus() { delete[] m_CpuRam; }
+Bus::Bus() {
+    m_CpuRam.fill(0x00);
+}
 
 void Bus::SetCartridge(Cartridge* cartridge) {
     assert(cartridge != nullptr);

@@ -12,8 +12,8 @@ void Dma::SetBus(Bus* bus) {
     m_Bus = bus;
 }
 
-void Dma::StartTransfer(uint8_t data) {
-    m_DmaPage = data;
+void Dma::StartTransfer(uint8_t dmaPageHighByte) {
+    m_DmaPage = dmaPageHighByte;
     m_DmaAddress = 0x00;
     m_DmaTransfer = true;
 }
