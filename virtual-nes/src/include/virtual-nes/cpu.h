@@ -5,7 +5,7 @@
 
 #include "virtual-nes/enums.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 // Forward declaration
 class Bus;
@@ -342,4 +342,4 @@ class Cpu {
     void Instruction_TYA();
 };
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

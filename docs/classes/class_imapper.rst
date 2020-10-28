@@ -1,5 +1,5 @@
 IMapper
 =========
 
-.. doxygenclass:: cpuemulator::IMapper
+.. doxygenclass:: virtualnes::IMapper
    :members:

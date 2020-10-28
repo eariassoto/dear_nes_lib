@@ -1,5 +1,5 @@
 CPU
 =========
 
-.. doxygenclass:: cpuemulator::Cpu
+.. doxygenclass:: virtualnes::Cpu
    :members:

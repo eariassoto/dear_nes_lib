@@ -1,5 +1,5 @@
 NES
 =========
 
-.. doxygenclass:: cpuemulator::Nes
+.. doxygenclass:: virtualnes::Nes
    :members:

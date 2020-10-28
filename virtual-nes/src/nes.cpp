@@ -7,7 +7,7 @@
 #include "virtual-nes/cartridge.h"
 #include "virtual-nes/enums.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 Nes::Nes() {
     m_Bus.SetPpu(&m_Ppu);
@@ -101,4 +101,4 @@ void Nes::WriteControllerState(size_t controllerIdx, uint8_t data) {
     m_Bus.WriteControllerState(controllerIdx, data);
 }
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

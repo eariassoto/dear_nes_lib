@@ -1,5 +1,5 @@
 PPU
 =========
 
-.. doxygenclass:: cpuemulator::Ppu
+.. doxygenclass:: virtualnes::Ppu
    :members:

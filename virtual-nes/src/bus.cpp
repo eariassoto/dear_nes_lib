@@ -8,7 +8,7 @@
 #include "virtual-nes/dma.h"
 #include "virtual-nes/ppu.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 Bus::Bus() {
     m_CpuRam.fill(0x00);
@@ -69,4 +69,4 @@ uint8_t Bus::CpuRead(uint16_t address, bool isReadOnly) {
     return data;
 }
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace cpuemulator {
+namespace virtualnes {
 
 // Forward declarations
 class IMapper;
@@ -109,4 +109,4 @@ class Cartridge {
 
     void ConstructFromFile(std::ifstream& ifs);
 };
-}  // namespace cpuemulator
+}  // namespace virtualnes

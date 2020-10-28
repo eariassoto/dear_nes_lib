@@ -1,5 +1,5 @@
 DMA
 =========
 
-.. doxygenclass:: cpuemulator::Dma
+.. doxygenclass:: virtualnes::Dma
    :members:

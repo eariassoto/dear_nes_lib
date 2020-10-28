@@ -3,7 +3,7 @@
 #include <cinttypes>
 #include <utility>
 
-namespace cpuemulator {
+namespace virtualnes {
 
 class Bus;
 
@@ -85,4 +85,4 @@ class Dma {
     void FinishTransfer();
 };
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

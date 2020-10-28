@@ -5,7 +5,7 @@
 
 #include "virtual-nes/mapper_000.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 Cartridge::Cartridge(const std::string& fileName) {
     std::ifstream ifs;
@@ -125,4 +125,4 @@ Cartridge::MIRROR Cartridge::GetMirroringMode() const {
     return m_MirroringMode;
 }
 
-}  // namespace cpuemulator
+}  // namespace virtualnes
