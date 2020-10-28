@@ -5,7 +5,7 @@
 
 #include "virtual-nes/cartridge.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 Ppu::Ppu() : m_OutputScreen{new int[256 * 240]} {}
 
@@ -658,4 +658,4 @@ void Ppu::DoPpuActionRenderEndFrameRendering() {
     }
 }
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

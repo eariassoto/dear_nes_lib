@@ -8,7 +8,7 @@
 #include "virtual-nes/dma.h"
 #include "virtual-nes/ppu.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 // Forward declarations
 class Cartridge;
@@ -121,4 +121,4 @@ class Nes {
 
     uint32_t m_SystemClockCounter = 0;
 };
-}  // namespace cpuemulator
+}  // namespace virtualnes

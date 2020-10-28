@@ -5,7 +5,7 @@
 
 #include "virtual-nes/enums.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 // Forward declarations
 class Cartridge;
@@ -120,4 +120,4 @@ class Bus {
     }
 };
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

@@ -1,5 +1,5 @@
 Bus
 =========
 
-.. doxygenclass:: cpuemulator::Bus
+.. doxygenclass:: virtualnes::Bus
    :members:

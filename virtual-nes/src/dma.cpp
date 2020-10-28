@@ -5,7 +5,7 @@
 
 #include "virtual-nes/bus.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 void Dma::SetBus(Bus* bus) {
     assert(bus != nullptr);
@@ -45,4 +45,4 @@ void Dma::Reset() {
     m_DmaTransfer = false;
 }
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

@@ -7,7 +7,7 @@
 #include "virtual-nes/array_map.hpp"
 #include "virtual-nes/bus.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 void Cpu::SetBus(Bus* bus) {
     assert(bus != nullptr);
@@ -943,4 +943,4 @@ Cpu::Instruction Cpu::FindInstruction(const uint8_t opCode) {
     return map.at(opCode);
 }
 
-}  // namespace cpuemulator
+}  // namespace virtualnes

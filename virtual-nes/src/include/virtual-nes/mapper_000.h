@@ -5,7 +5,7 @@
 
 #include "virtual-nes/mapper.h"
 
-namespace cpuemulator {
+namespace virtualnes {
 
 /// <summary>
 /// Implementation of the NROM mapper, identified by the iNES format as mapper 000.
@@ -27,4 +27,4 @@ class Mapper_000 : public IMapper {
     bool PpuMapRead(uint16_t addr, uint32_t &mappedAddr) override;
     bool PpuMapWrite(uint16_t addr, uint32_t &mappedAddr) override;
 };
-}  // namespace cpuemulator
+}  // namespace virtualnes

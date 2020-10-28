@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace cpuemulator {
+namespace virtualnes {
 
 /// <summary>
 /// Interface class for iNES mapper implementation. Each implementation will define
@@ -68,4 +68,4 @@ class IMapper {
     /// </summary>
     uint8_t m_ChrBanks = 0;
 };
-}  // namespace cpuemulator
+}  // namespace virtualnes

@@ -1,5 +1,5 @@
 Cartridge
 =========
 
-.. doxygenclass:: cpuemulator::Cartridge
+.. doxygenclass:: virtualnes::Cartridge
    :members:
