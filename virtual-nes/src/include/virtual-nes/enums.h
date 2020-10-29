@@ -21,4 +21,10 @@ static constexpr size_t NUM_CONTROLLERS = 2;
 static constexpr size_t CONTROLLER_PLAYER_1_IDX = 0;
 static constexpr size_t CONTROLLER_PLAYER_2_IDX = 1;
 
+enum class CartridgeLoaderError {
+    FILE_NOT_FOUND,
+    MAPPER_NOT_SUPPORTED,
+    OK
+};
+
 }  // namespace virtualnes
