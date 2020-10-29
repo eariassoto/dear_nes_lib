@@ -27,18 +27,20 @@ Nes::~Nes() {
 uint64_t Nes::GetSystemClockCounter() const { return m_SystemClockCounter; }
 
 void Nes::InsertCatridge(Cartridge* cartridge) {
-    // TODO: Loading more than one cartridge will leam memory.
-    // Consider having a cartridge manager that will handle/swap
-    // the cartridge data
-
-    // Logger::Get().Log("BUS", "Inserting cartridge");
-    m_Cartridge = cartridge;
     m_Bus.SetCartridge(cartridge);
     m_Ppu.ConnectCatridge(cartridge);
     m_IsCartridgeLoaded = true;
+    if (m_Cartridge != nullptr) {
+        delete m_Cartridge;
+    }
+    m_Cartridge = cartridge;
+    Reset();
 }
 
 void Nes::Reset() {
+    if (!m_IsCartridgeLoaded) {
+        return;
+    }
     m_Cpu.Reset();
     m_SystemClockCounter = 0;
 }
@@ -73,6 +75,9 @@ void Nes::Clock() {
 }
 
 void Nes::DoFrame() {
+    if (!m_IsCartridgeLoaded) {
+        return;
+    }
     do {
         Clock();
     } while (!m_Ppu.IsFrameCompleted());

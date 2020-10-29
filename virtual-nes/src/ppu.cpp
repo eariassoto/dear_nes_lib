@@ -122,12 +122,13 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
     uint8_t data = 0x00;
     address &= 0x3FFF;
 
-    if (m_Cartridge->PpuRead(address, data)) {
+    if (m_Cartridge && m_Cartridge->PpuRead(address, data)) {
     } else if (address >= 0x0000 && address <= 0x1FFF) {
         data = m_PatternTables[(address & 0x1000) >> 12][address & 0x0FFF];
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
-        if (m_Cartridge->GetMirroringMode() == CartridgeHeader::MIRRORING_MODE::VERTICAL) {
+        if (m_Cartridge && m_Cartridge->GetMirroringMode() ==
+                               CartridgeHeader::MIRRORING_MODE::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -137,7 +138,8 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
                 data = m_Nametables[0][address & 0x03FF];
             if (address >= 0x0C00 && address <= 0x0FFF)
                 data = m_Nametables[1][address & 0x03FF];
-        } else if (m_Cartridge->GetMirroringMode() ==
+        } else if (m_Cartridge &&
+                   m_Cartridge->GetMirroringMode() ==
                    CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
@@ -162,12 +164,13 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
 
 void Ppu::PpuWrite(uint16_t address, uint8_t data) {
     address &= 0x3FFF;
-    if (m_Cartridge->PpuWrite(address, data)) {
+    if (m_Cartridge && m_Cartridge->PpuWrite(address, data)) {
     } else if (address >= 0x0000 && address <= 0x1FFF) {
         m_PatternTables[(address & 0x1000) >> 12][address & 0x0FFF] = data;
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
-        if (m_Cartridge->GetMirroringMode() == CartridgeHeader::MIRRORING_MODE::VERTICAL) {
+        if (m_Cartridge && m_Cartridge->GetMirroringMode() ==
+                               CartridgeHeader::MIRRORING_MODE::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -177,7 +180,8 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
                 m_Nametables[0][address & 0x03FF] = data;
             if (address >= 0x0C00 && address <= 0x0FFF)
                 m_Nametables[1][address & 0x03FF] = data;
-        } else if (m_Cartridge->GetMirroringMode() ==
+        } else if (m_Cartridge &&
+                   m_Cartridge->GetMirroringMode() ==
                    CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)

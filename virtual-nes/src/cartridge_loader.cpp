@@ -15,17 +15,23 @@ class Cartridge;
 
 std::variant<CartridgeLoaderError, Cartridge*>
 CartridgeLoader::LoadNewCartridge(const std::string& fileName) {
-    std::variant<CartridgeLoaderError, Cartridge*> result;
-
     std::ifstream ifs;
     ifs.open(fileName, std::ifstream::binary);
-    if (!ifs.is_open()) {
+    
+    return LoadNewCartridge(ifs);
+}
+
+std::variant<CartridgeLoaderError, Cartridge*>
+CartridgeLoader::LoadNewCartridge(std::ifstream& inputStream) {
+    std::variant<CartridgeLoaderError, Cartridge*> result;
+
+    if (!inputStream.is_open()) {
         result = CartridgeLoaderError::FILE_NOT_FOUND;
         return result;
     }
 
     // This consumes the header from the ifstream
-    CartridgeHeader header{ifs};
+    CartridgeHeader header{inputStream};
 
     // Check for the mapper type
     if (!IsMapperSupported(header.GetMapperId())) {
@@ -36,19 +42,20 @@ CartridgeLoader::LoadNewCartridge(const std::string& fileName) {
     IMapper* mapperPtr = CreateMapper(header);
 
     if (header.HasTrainerData()) {
-        ifs.seekg(512, std::ios_base::cur);
+        inputStream.seekg(512, std::ios_base::cur);
     }
 
     std::vector<uint8_t> programMemory(header.GetProgramMemorySize());
-    ifs.read(reinterpret_cast<char*>(programMemory.data()),
+    inputStream.read(reinterpret_cast<char*>(programMemory.data()),
              programMemory.size());
 
     std::vector<uint8_t> characterMemory(header.GetCharacterMemorySize());
-    ifs.read(reinterpret_cast<char*>(characterMemory.data()),
+    inputStream.read(reinterpret_cast<char*>(characterMemory.data()),
              characterMemory.size());
 
-    result = new Cartridge{std::move(header), mapperPtr, std::move(programMemory),
-                       std::move(characterMemory)};
+    result =
+        new Cartridge{std::move(header), mapperPtr, std::move(programMemory),
+                      std::move(characterMemory)};
 
     return result;
 }

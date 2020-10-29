@@ -17,6 +17,9 @@ class CartridgeLoader {
     std::variant<CartridgeLoaderError, Cartridge*> LoadNewCartridge(
         const std::string& fileName);
 
+    std::variant<CartridgeLoaderError, Cartridge*> LoadNewCartridge(
+        std::ifstream& inputStream);
+
    private:
     bool IsMapperSupported(uint8_t mapperId);
 

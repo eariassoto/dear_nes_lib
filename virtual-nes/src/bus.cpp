@@ -42,7 +42,7 @@ void Bus::WriteControllerState(size_t controllerIdx, uint8_t data) {
 }
 
 void Bus::CpuWrite(uint16_t address, uint8_t data) {
-    if (m_Cartridge->CpuWrite(address, data)) {
+    if (m_Cartridge && m_Cartridge->CpuWrite(address, data)) {
     } else if (address >= 0x0000 && address <= 0x1FFF) {
         m_CpuRam[GetRealRamAddress(address)] = data;
     } else if (address >= 0x2000 && address <= 0x3FFF) {
@@ -56,7 +56,7 @@ void Bus::CpuWrite(uint16_t address, uint8_t data) {
 
 uint8_t Bus::CpuRead(uint16_t address, bool isReadOnly) {
     uint8_t data = 0x00;
-    if (m_Cartridge->CpuRead(address, data)) {
+    if (m_Cartridge && m_Cartridge->CpuRead(address, data)) {
     } else if (address >= 0x0000 && address <= 0x1FFF) {
         data = m_CpuRam[GetRealRamAddress(address)];
     } else if (address >= 0x2000 && address <= 0x3FFF) {
