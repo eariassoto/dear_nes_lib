@@ -127,7 +127,7 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
         data = m_PatternTables[(address & 0x1000) >> 12][address & 0x0FFF];
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
-        if (m_Cartridge->GetMirroringMode() == Cartridge::MIRROR::VERTICAL) {
+        if (m_Cartridge->GetMirroringMode() == CartridgeHeader::MIRRORING_MODE::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -138,7 +138,7 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
             if (address >= 0x0C00 && address <= 0x0FFF)
                 data = m_Nametables[1][address & 0x03FF];
         } else if (m_Cartridge->GetMirroringMode() ==
-                   Cartridge::MIRROR::HORIZONTAL) {
+                   CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -167,7 +167,7 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
         m_PatternTables[(address & 0x1000) >> 12][address & 0x0FFF] = data;
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
-        if (m_Cartridge->GetMirroringMode() == Cartridge::MIRROR::VERTICAL) {
+        if (m_Cartridge->GetMirroringMode() == CartridgeHeader::MIRRORING_MODE::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -178,7 +178,7 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
             if (address >= 0x0C00 && address <= 0x0FFF)
                 m_Nametables[1][address & 0x03FF] = data;
         } else if (m_Cartridge->GetMirroringMode() ==
-                   Cartridge::MIRROR::HORIZONTAL) {
+                   CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
