@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <fstream>
 
+#include "virtual-nes/enums.h"
+
 namespace virtualnes {
 
 /// <summary>
@@ -15,24 +17,13 @@ class CartridgeHeader {
     CartridgeHeader() = delete;
     CartridgeHeader(std::ifstream& inputStream);
 
-    /// <summary>
-    /// Mirroring mode for the game. Refer to
-    /// https://wiki.nesdev.com/w/index.php/Mirroring
-    /// </summary>
-    enum class MIRRORING_MODE {
-        HORIZONTAL,
-        VERTICAL,
-        ONESCREEN_LO,
-        ONESCREEN_HI
-    };
-
     bool HasTrainerData() const;
 
     /// <summary>
     /// Returns the mirroring mode for the cartridge
     /// </summary>
     /// <returns></returns>
-    MIRRORING_MODE GetMirroringMode() const;
+    CARTRIDGE_MIRRORING_MODE GetMirroringMode() const;
 
     inline uint8_t GetMapperId() const {
         return ((m_iNesHeader.m_Mapper2 >> 4) << 4) | (m_iNesHeader.m_Mapper1 >> 4);
@@ -114,7 +105,7 @@ class CartridgeHeader {
     };
     iNesHeader m_iNesHeader;
 
-    MIRRORING_MODE m_MirroringMode = MIRRORING_MODE::HORIZONTAL;
+    CARTRIDGE_MIRRORING_MODE m_MirroringMode = CARTRIDGE_MIRRORING_MODE::HORIZONTAL;
 
 };
 

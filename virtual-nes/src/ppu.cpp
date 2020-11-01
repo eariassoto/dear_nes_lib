@@ -128,7 +128,7 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
         if (m_Cartridge && m_Cartridge->GetMirroringMode() ==
-                               CartridgeHeader::MIRRORING_MODE::VERTICAL) {
+                               CARTRIDGE_MIRRORING_MODE::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -138,9 +138,8 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
                 data = m_Nametables[0][address & 0x03FF];
             if (address >= 0x0C00 && address <= 0x0FFF)
                 data = m_Nametables[1][address & 0x03FF];
-        } else if (m_Cartridge &&
-                   m_Cartridge->GetMirroringMode() ==
-                   CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
+        } else if (m_Cartridge && m_Cartridge->GetMirroringMode() ==
+                                      CARTRIDGE_MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -170,7 +169,7 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
     } else if (address >= 0x2000 && address <= 0x3EFF) {
         address &= 0x0FFF;
         if (m_Cartridge && m_Cartridge->GetMirroringMode() ==
-                               CartridgeHeader::MIRRORING_MODE::VERTICAL) {
+                               CARTRIDGE_MIRRORING_MODE::VERTICAL) {
             // Vertical
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -180,9 +179,8 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
                 m_Nametables[0][address & 0x03FF] = data;
             if (address >= 0x0C00 && address <= 0x0FFF)
                 m_Nametables[1][address & 0x03FF] = data;
-        } else if (m_Cartridge &&
-                   m_Cartridge->GetMirroringMode() ==
-                   CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
+        } else if (m_Cartridge && m_Cartridge->GetMirroringMode() ==
+                                      CARTRIDGE_MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -409,9 +407,10 @@ void Ppu::Clock() {
         if (m_SpriteZeroHitPossible && m_SpriteZeroBeingRendered) {
             if (m_MaskReg.GetField(RENDER_BACKGROUND) &
                 m_MaskReg.GetField(RENDER_SPRITES)) {
-                // The left edge of the screen has specific switches to control
-                // its appearance. This is used to smooth inconsistencies when
-                // scrolling (since sprites x coord must be >= 0)
+                // The left edge of the screen has specific switches to
+                // control its appearance. This is used to smooth
+                // inconsistencies when scrolling (since sprites x coord
+                // must be >= 0)
                 if (!(m_MaskReg.GetField(RENDER_BACKGROUND_LEFT) |
                       m_MaskReg.GetField(RENDER_SPRITES_LEFT))) {
                     if (m_Cycle >= 9 && m_Cycle < 258) {

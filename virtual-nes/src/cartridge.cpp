@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include "virtual-nes/cartridge.h"
-#include "virtual-nes/mapper.h"
+
+#include "virtual-nes/imapper.h"
 
 namespace virtualnes {
 
@@ -14,8 +15,12 @@ Cartridge::Cartridge(CartridgeHeader&& header, IMapper* mapper,
 
 Cartridge::~Cartridge() { delete m_Mapper; }
 
-CartridgeHeader::MIRRORING_MODE Cartridge::GetMirroringMode() const {
-    return m_CartridgeHeader.GetMirroringMode();
+CARTRIDGE_MIRRORING_MODE Cartridge::GetMirroringMode() const {
+    CARTRIDGE_MIRRORING_MODE mapperMode = m_Mapper->GetMirroringMode();
+    if (mapperMode == CARTRIDGE_MIRRORING_MODE::HARDWARE_DEFINED) {
+        return m_CartridgeHeader.GetMirroringMode();
+    }
+    return mapperMode;
 }
 
 bool Cartridge::CpuRead(uint16_t address, uint8_t& data) {

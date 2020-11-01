@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <memory>
 
+#include "virtual-nes/enums.h"
+
 namespace virtualnes {
 
 /// <summary>
@@ -19,6 +21,8 @@ class IMapper {
     /// <param name="prgBanks"></param>
     /// <param name="chrBanks"></param>
     IMapper(uint8_t prgBanks, uint8_t chrBanks);
+
+    virtual ~IMapper() = default;
 
     /// <summary>
     /// Handle CPU read request, if the address to read belongs to the mapper domain,
@@ -56,6 +60,8 @@ class IMapper {
     /// <param name="mappedAddr"></param>
     /// <returns></returns>
     virtual bool PpuMapWrite(uint16_t addr, uint32_t &mappedAddr) = 0;
+
+    virtual CARTRIDGE_MIRRORING_MODE GetMirroringMode() const;
 
    protected:
     /// <summary>

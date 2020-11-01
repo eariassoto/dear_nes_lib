@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "virtual-nes/cartridge_header.h"
+#include "virtual-nes/enums.h"
 
 namespace virtualnes {
 
@@ -29,7 +30,7 @@ class Cartridge {
 
     ~Cartridge();
 
-    CartridgeHeader::MIRRORING_MODE GetMirroringMode() const;
+    CARTRIDGE_MIRRORING_MODE GetMirroringMode() const;
 
     /// <summary>
     /// Attempt to read from the CPU to the cartridge memory. If the mapper

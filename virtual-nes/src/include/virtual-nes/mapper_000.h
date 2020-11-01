@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "virtual-nes/mapper.h"
+#include "virtual-nes/imapper.h"
 
 namespace virtualnes {
 

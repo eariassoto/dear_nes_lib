@@ -15,16 +15,24 @@ enum CpuFlag : uint8_t {
     N = (0b1 << 7),  // Negative
 };
 
+/// <summary>
+/// Mirroring mode for the game. Refer to
+/// https://wiki.nesdev.com/w/index.php/Mirroring
+/// </summary>
+enum class CARTRIDGE_MIRRORING_MODE {
+    HARDWARE_DEFINED,
+    HORIZONTAL,
+    VERTICAL,
+    ONESCREEN_LO,
+    ONESCREEN_HI
+};
+
 static constexpr size_t SIZE_CPU_RAM = 0x0800;
 
 static constexpr size_t NUM_CONTROLLERS = 2;
 static constexpr size_t CONTROLLER_PLAYER_1_IDX = 0;
 static constexpr size_t CONTROLLER_PLAYER_2_IDX = 1;
 
-enum class CartridgeLoaderError {
-    FILE_NOT_FOUND,
-    MAPPER_NOT_SUPPORTED,
-    OK
-};
+enum class CartridgeLoaderError { FILE_NOT_FOUND, MAPPER_NOT_SUPPORTED, OK };
 
 }  // namespace virtualnes
