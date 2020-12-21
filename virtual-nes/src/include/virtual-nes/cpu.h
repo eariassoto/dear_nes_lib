@@ -1,7 +1,6 @@
 // Copyright (c) 2020 Emmanuel Arias
 #pragma once
 #include <cinttypes>
-#include <string_view>
 
 #include "virtual-nes/enums.h"
 
@@ -129,19 +128,12 @@ class Cpu {
         /// Construct a constexpr item for the instruction set lookup table.
         /// The table will reference the operation code to the proper callbacks.
         /// </summary>
-        /// <param name="name"></param>
         /// <param name="executeInstruction"></param>
         /// <param name="execureAddressingMode"></param>
         /// <param name="cycles"></param>
-        constexpr Instruction(const std::string_view name,
-                              const FuncPtr executeInstruction,
+        constexpr Instruction(const FuncPtr executeInstruction,
                               const FuncPtr execureAddressingMode,
-                               const uint8_t cycles);
-        /// <summary>
-        /// Instruction's name for debugging purposes. At the moment it is not being used.
-        /// </summary>
-        std::string_view m_Name;
-        
+                               const uint8_t cycles);        
         /// <summary>
         /// Instruction callback. This is the virtual implementation of the instruction.
         /// </summary>
@@ -197,149 +189,151 @@ class Cpu {
     Instruction FindInstruction(const uint8_t opCode);
 
    private:
-    void ImmediateAddressing();
+    void AddrImmediate();
 
-    void ZeroPageAddressing();
+    void AddrZeroPage();
 
-    void IndexedZeroPageAddressingX();
+    void AddrIndexedZeroPageX();
 
-    void IndexedZeroPageAddressingY();
+    void AddrIndexedZeroPageY();
 
-    void AbsoluteAddressing();
+    void AddrAbsolute();
 
-    void IndexedAbsoluteAddressingX();
+    void AddrIndexedAbsoluteX();
 
-    void IndexedAbsoluteAddressingY();
+    void AddrIndexedAbsoluteY();
 
-    void AbsoluteIndirectAddressing();
+    void AddrAbsoluteIndirect();
 
-    void IndexedIndirectAddressingX();
+    void AddrIndexedIndirectX();
 
-    void IndirectIndexedAddressingY();
+    void AddrIndirectIndexedY();
 
-    void RelativeAddressing();
+    void AddrRelative();
 
-    void Instruction_ADC();
+    void InstrNoImpl();
 
-    void Instruction_AND();
+    void InstrADC();
 
-    void Instruction_ASL();
+    void InstrAND();
 
-    void Instruction_ASL_AcummAddr();
+    void InstrASL();
 
-    void Instruction_ExecuteBranch();
+    void InstrASL_AcummAddr();
 
-    void Instruction_BCC();
+    void InstrExecuteBranch();
 
-    void Instruction_BCS();
+    void InstrBCC();
 
-    void Instruction_BEQ();
+    void InstrBCS();
 
-    void Instruction_BIT();
+    void InstrBEQ();
 
-    void Instruction_BMI();
+    void InstrBIT();
 
-    void Instruction_BNE();
+    void InstrBMI();
 
-    void Instruction_BPL();
+    void InstrBNE();
 
-    void Instruction_BRK();
+    void InstrBPL();
 
-    void Instruction_BVC();
+    void InstrBRK();
 
-    void Instruction_BVS();
+    void InstrBVC();
 
-    void Instruction_CLC();
+    void InstrBVS();
 
-    void Instruction_CLD();
+    void InstrCLC();
 
-    void Instruction_CLI();
+    void InstrCLD();
 
-    void Instruction_CLV();
+    void InstrCLI();
 
-    void Instruction_CMP();
+    void InstrCLV();
 
-    void Instruction_CPX();
+    void InstrCMP();
 
-    void Instruction_CPY();
+    void InstrCPX();
 
-    void Instruction_DEC();
+    void InstrCPY();
 
-    void Instruction_DEX();
+    void InstrDEC();
 
-    void Instruction_DEY();
+    void InstrDEX();
 
-    void Instruction_EOR();
+    void InstrDEY();
 
-    void Instruction_INC();
+    void InstrEOR();
 
-    void Instruction_INX();
+    void InstrINC();
 
-    void Instruction_INY();
+    void InstrINX();
 
-    void Instruction_JMP();
+    void InstrINY();
 
-    void Instruction_JSR();
+    void InstrJMP();
 
-    void Instruction_LDA();
+    void InstrJSR();
 
-    void Instruction_LDX();
+    void InstrLDA();
 
-    void Instruction_LDY();
+    void InstrLDX();
 
-    void Instruction_LSR();
+    void InstrLDY();
 
-    void Instruction_LSR_AcummAddr();
+    void InstrLSR();
 
-    void Instruction_NOP();
+    void InstrLSR_AcummAddr();
 
-    void Instruction_ORA();
+    void InstrNOP();
 
-    void Instruction_PHA();
+    void InstrORA();
 
-    void Instruction_PHP();
+    void InstrPHA();
 
-    void Instruction_PLA();
+    void InstrPHP();
 
-    void Instruction_PLP();
+    void InstrPLA();
 
-    void Instruction_ROL();
+    void InstrPLP();
 
-    void Instruction_ROL_AcummAddr();
+    void InstrROL();
 
-    void Instruction_ROR();
+    void InstrROL_AcummAddr();
 
-    void Instruction_ROR_AcummAddr();
+    void InstrROR();
 
-    void Instruction_RTI();
+    void InstrROR_AcummAddr();
 
-    void Instruction_RTS();
+    void InstrRTI();
 
-    void Instruction_SBC();
+    void InstrRTS();
 
-    void Instruction_SEC();
+    void InstrSBC();
 
-    void Instruction_SED();
+    void InstrSEC();
 
-    void Instruction_SEI();
+    void InstrSED();
 
-    void Instruction_STA();
+    void InstrSEI();
 
-    void Instruction_STX();
+    void InstrSTA();
 
-    void Instruction_STY();
+    void InstrSTX();
 
-    void Instruction_TAX();
+    void InstrSTY();
 
-    void Instruction_TAY();
+    void InstrTAX();
 
-    void Instruction_TSX();
+    void InstrTAY();
 
-    void Instruction_TXA();
+    void InstrTSX();
 
-    void Instruction_TXS();
+    void InstrTXA();
 
-    void Instruction_TYA();
+    void InstrTXS();
+
+    void InstrTYA();
 };
 
 }  // namespace virtualnes
