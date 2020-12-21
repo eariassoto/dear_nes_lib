@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #pragma once
 #include <cinttypes>
+#include <cstddef>
 
 namespace virtualnes {
 

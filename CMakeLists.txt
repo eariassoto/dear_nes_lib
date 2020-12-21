@@ -6,4 +6,9 @@ project ("virtual_nes")
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 add_subdirectory ("virtual-nes")
-add_subdirectory ("docs")
+
+set(BUILD_DOC FALSE CACHE BOOL "Build documentation with Doxygen and Sphynx")
+
+if(BUILD_DOC)
+    add_subdirectory ("docs")
+endif()

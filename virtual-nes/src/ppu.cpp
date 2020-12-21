@@ -2,6 +2,7 @@
 #include "virtual-nes/ppu.h"
 
 #include <cassert>
+#include <cstring>
 
 #include "virtual-nes/cartridge.h"
 
