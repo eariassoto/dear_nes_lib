@@ -20,6 +20,8 @@ class IMapper {
     /// <param name="chrBanks"></param>
     IMapper(uint8_t prgBanks, uint8_t chrBanks);
 
+    virtual ~IMapper() = default;
+
     /// <summary>
     /// Handle CPU read request, if the address to read belongs to the mapper domain,
     /// save the value in the input param and return true, otherwise return false.

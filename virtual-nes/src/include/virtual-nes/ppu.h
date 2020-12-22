@@ -262,7 +262,7 @@ class Ppu {
     /// attribute table. With each tile being 8x8 pixels, this makes a total of
     /// 256x240 pixels in one map, the same size as one full screen.
     /// https://wiki.nesdev.com/w/index.php/PPU_nametables
-    uint8_t m_Nametables[2][1024] = {0};
+    uint8_t m_Nametables[2][1024] = {{0}};
 
     /// The palette for the background runs from VRAM $3F00 to $3F0F; the
     /// palette for the sprites runs from $3F10 to $3F1F. Each color takes up
@@ -274,7 +274,7 @@ class Ppu {
     /// the pattern table is 16 bytes, made of two planes. The first plane
     /// controls bit 0 of the color; the second plane controls bit 1.
     /// https://wiki.nesdev.com/w/index.php/PPU_pattern_tables
-    uint8_t m_PatternTables[2][4096] = {0};
+    uint8_t m_PatternTables[2][4096] = {{0}};
 
    private:
     // Data structures used for handling scrolling information.

@@ -10,7 +10,7 @@ namespace virtualnes {
 
 Ppu::Ppu() : m_OutputScreen{new int[256 * 240]} {}
 
-Ppu::~Ppu() { delete m_OutputScreen; }
+Ppu::~Ppu() { delete[] m_OutputScreen; }
 
 int Ppu::GetColorFromPalette(uint8_t palette, uint8_t pixel) {
     assert(pixel <= 3);

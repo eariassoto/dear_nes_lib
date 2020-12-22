@@ -165,9 +165,6 @@ class Cpu {
 
     uint16_t m_ProgramCounter = 0x00;
 
-    uint8_t m_CyclesToIdle = 0;
-    uint64_t m_GlobalCycles = 0;
-
     uint16_t m_AddressAbsolute = 0x0000;
     uint16_t m_AddressRelative = 0x0000;
 
