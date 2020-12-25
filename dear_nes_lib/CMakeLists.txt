@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-set(VIRTUAL_NES_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src PARENT_SCOPE)
+set(DEAR_NES_LIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src PARENT_SCOPE)
 
 file(GLOB_RECURSE SOURCE_FILES 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 file(GLOB_RECURSE HEADER_FILES 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/include/virtual-nes/*.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/include/virtual-nes/*.hpp)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/include/dear_nes_lib/*.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/include/dear_nes_lib/*.hpp)
 
 # We need to add HEADER_FILES so that source_group can add the headers
 # to the Sources/ folder in Visual Studio
