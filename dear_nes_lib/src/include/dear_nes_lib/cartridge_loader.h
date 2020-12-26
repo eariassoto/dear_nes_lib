@@ -3,9 +3,9 @@
 #include <string>
 #include <variant>
 
-#include "virtual-nes/enums.h"
+#include "dear_nes_lib/enums.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 // Forward declaration
 class Cartridge;
@@ -26,4 +26,4 @@ class CartridgeLoader {
     IMapper* CreateMapper(const CartridgeHeader& header);
 };
 
-}  // namespace virtualnes
+}  // namespace dearnes

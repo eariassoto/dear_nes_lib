@@ -3,7 +3,7 @@
 #include <cinttypes>
 #include <cstddef>
 
-namespace virtualnes {
+namespace dearnes {
 
 enum CpuFlag : uint8_t {
     C = (0b1 << 0),  // Carry Bit
@@ -28,4 +28,4 @@ enum class CartridgeLoaderError {
     OK
 };
 
-}  // namespace virtualnes
+}  // namespace dearnes

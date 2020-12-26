@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <fstream>
 
-namespace virtualnes {
+namespace dearnes {
 
 /// <summary>
 /// iNES format for virtual cartridge headers. This struct describes the
@@ -118,4 +118,4 @@ class CartridgeHeader {
 
 };
 
-}  // namespace virtualnes
+}  // namespace dearnes

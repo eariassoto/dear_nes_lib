@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <memory>
 
-#include "virtual-nes/mapper.h"
+#include "dear_nes_lib/mapper.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 /// <summary>
 /// Implementation of the NROM mapper, identified by the iNES format as mapper 000.
@@ -27,4 +27,4 @@ class Mapper_000 : public IMapper {
     bool PpuMapRead(uint16_t addr, uint32_t &mappedAddr) override;
     bool PpuMapWrite(uint16_t addr, uint32_t &mappedAddr) override;
 };
-}  // namespace virtualnes
+}  // namespace dearnes

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace virtualnes {
+namespace dearnes {
 
 /// <summary>
 /// Interface class for iNES mapper implementation. Each implementation will define
@@ -70,4 +70,4 @@ class IMapper {
     /// </summary>
     uint8_t m_ChrBanks = 0;
 };
-}  // namespace virtualnes
+}  // namespace dearnes

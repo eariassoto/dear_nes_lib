@@ -3,9 +3,9 @@
 #include <array>
 #include <cinttypes>
 
-#include "virtual-nes/enums.h"
+#include "dear_nes_lib/enums.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 // Forward declarations
 class Cartridge;
@@ -120,4 +120,4 @@ class Bus {
     }
 };
 
-}  // namespace virtualnes
+}  // namespace dearnes

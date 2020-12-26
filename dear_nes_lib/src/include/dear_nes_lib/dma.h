@@ -3,7 +3,7 @@
 #include <cinttypes>
 #include <utility>
 
-namespace virtualnes {
+namespace dearnes {
 
 class Bus;
 
@@ -85,4 +85,4 @@ class Dma {
     void FinishTransfer();
 };
 
-}  // namespace virtualnes
+}  // namespace dearnes

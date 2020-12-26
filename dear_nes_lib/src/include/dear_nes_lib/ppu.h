@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 
-namespace virtualnes {
+namespace dearnes {
 
 // Forward declaration
 class Cartridge;
@@ -359,4 +359,4 @@ class Ppu {
         0xFFA0D6E4, 0xFFA0A2A0, 0xFF000000, 0xFF000000};
 };
 
-}  // namespace virtualnes
+}  // namespace dearnes

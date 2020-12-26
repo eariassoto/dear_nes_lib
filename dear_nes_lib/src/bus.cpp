@@ -1,14 +1,14 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/bus.h"
+#include "dear_nes_lib/bus.h"
 
 #include <cstring>
 #include <cassert>
 
-#include "virtual-nes/cartridge.h"
-#include "virtual-nes/dma.h"
-#include "virtual-nes/ppu.h"
+#include "dear_nes_lib/cartridge.h"
+#include "dear_nes_lib/dma.h"
+#include "dear_nes_lib/ppu.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 Bus::Bus() {
     m_CpuRam.fill(0x00);
@@ -69,4 +69,4 @@ uint8_t Bus::CpuRead(uint16_t address, bool isReadOnly) {
     return data;
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

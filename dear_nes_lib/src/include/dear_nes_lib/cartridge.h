@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "virtual-nes/cartridge_header.h"
+#include "dear_nes_lib/cartridge_header.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 // Forward declarations
 class IMapper;
@@ -79,4 +79,4 @@ class Cartridge {
     std::vector<uint8_t> m_ProgramMemory;
     std::vector<uint8_t> m_CharacterMemory;
 };
-}  // namespace virtualnes
+}  // namespace dearnes

@@ -1,13 +1,13 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/nes.h"
+#include "dear_nes_lib/nes.h"
 
 #include <cassert>
 #include <iostream>
 
-#include "virtual-nes/cartridge.h"
-#include "virtual-nes/enums.h"
+#include "dear_nes_lib/cartridge.h"
+#include "dear_nes_lib/enums.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 Nes::Nes() {
     m_Bus.SetPpu(&m_Ppu);
@@ -106,4 +106,4 @@ void Nes::WriteControllerState(size_t controllerIdx, uint8_t data) {
     m_Bus.WriteControllerState(controllerIdx, data);
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

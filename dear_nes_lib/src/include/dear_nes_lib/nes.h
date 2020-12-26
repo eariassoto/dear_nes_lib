@@ -3,12 +3,12 @@
 
 #include <cstdint>
 
-#include "virtual-nes/bus.h"
-#include "virtual-nes/cpu.h"
-#include "virtual-nes/dma.h"
-#include "virtual-nes/ppu.h"
+#include "dear_nes_lib/bus.h"
+#include "dear_nes_lib/cpu.h"
+#include "dear_nes_lib/dma.h"
+#include "dear_nes_lib/ppu.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 // Forward declarations
 class Cartridge;
@@ -121,4 +121,4 @@ class Nes {
 
     uint32_t m_SystemClockCounter = 0;
 };
-}  // namespace virtualnes
+}  // namespace dearnes

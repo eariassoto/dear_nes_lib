@@ -1,8 +1,8 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/cartridge.h"
-#include "virtual-nes/mapper.h"
+#include "dear_nes_lib/cartridge.h"
+#include "dear_nes_lib/mapper.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 Cartridge::Cartridge(CartridgeHeader&& header, IMapper* mapper,
                      std::vector<uint8_t>&& programMemory,
@@ -54,4 +54,4 @@ bool Cartridge::PpuWrite(uint16_t address, uint8_t data) {
     return false;
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

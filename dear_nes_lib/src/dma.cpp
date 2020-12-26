@@ -1,11 +1,11 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/dma.h"
+#include "dear_nes_lib/dma.h"
 
 #include <cassert>
 
-#include "virtual-nes/bus.h"
+#include "dear_nes_lib/bus.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 void Dma::SetBus(Bus* bus) {
     assert(bus != nullptr);
@@ -45,4 +45,4 @@ void Dma::Reset() {
     m_DmaTransfer = false;
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

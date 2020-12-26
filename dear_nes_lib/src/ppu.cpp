@@ -1,12 +1,12 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/ppu.h"
+#include "dear_nes_lib/ppu.h"
 
 #include <cassert>
 #include <cstring>
 
-#include "virtual-nes/cartridge.h"
+#include "dear_nes_lib/cartridge.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 Ppu::Ppu() : m_OutputScreen{new int[256 * 240]} {}
 
@@ -663,4 +663,4 @@ void Ppu::DoPpuActionRenderEndFrameRendering() {
     }
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

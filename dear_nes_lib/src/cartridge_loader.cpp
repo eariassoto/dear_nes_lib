@@ -1,14 +1,14 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/cartridge_loader.h"
+#include "dear_nes_lib/cartridge_loader.h"
 
 #include <fstream>
 #include <vector>
 
-#include "virtual-nes/cartridge.h"
-#include "virtual-nes/cartridge_header.h"
-#include "virtual-nes/mapper_000.h"
+#include "dear_nes_lib/cartridge.h"
+#include "dear_nes_lib/cartridge_header.h"
+#include "dear_nes_lib/mapper_000.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 // Forward declaration
 class Cartridge;
@@ -76,4 +76,4 @@ IMapper* CartridgeLoader::CreateMapper(const CartridgeHeader& header) {
     return nullptr;
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

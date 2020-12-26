@@ -1,7 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/mapper_000.h"
+#include "dear_nes_lib/mapper_000.h"
 
-namespace virtualnes {
+namespace dearnes {
 Mapper_000::Mapper_000(uint8_t prgBanks, uint8_t chrBanks)
     : IMapper{prgBanks, chrBanks} {}
 
@@ -34,4 +34,4 @@ bool Mapper_000::PpuMapWrite(uint16_t addr, uint32_t& mappedAddr) {
     return false;
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

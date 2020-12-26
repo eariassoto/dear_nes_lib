@@ -1,6 +1,6 @@
-#include "virtual-nes/cartridge_header.h"
+#include "dear_nes_lib/cartridge_header.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 CartridgeHeader::CartridgeHeader(std::ifstream& inputStream) {
 	inputStream.read(reinterpret_cast<char*>(&m_iNesHeader),
@@ -17,4 +17,4 @@ CartridgeHeader::MIRRORING_MODE CartridgeHeader::GetMirroringMode() const {
     return m_MirroringMode;
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes

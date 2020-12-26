@@ -1,11 +1,11 @@
 // Copyright (c) 2020 Emmanuel Arias
-#include "virtual-nes/cpu.h"
+#include "dear_nes_lib/cpu.h"
 
 #include <cassert>
 
-#include "virtual-nes/bus.h"
+#include "dear_nes_lib/bus.h"
 
-namespace virtualnes {
+namespace dearnes {
 
 void Cpu::SetBus(Bus* bus) {
     assert(bus != nullptr);
@@ -892,4 +892,4 @@ Cpu::Instruction Cpu::FindInstruction(const uint8_t opCode) {
     return instruction_table[opCode];
 }
 
-}  // namespace virtualnes
+}  // namespace dearnes
