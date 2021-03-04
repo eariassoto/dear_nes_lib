@@ -183,7 +183,7 @@ class Cpu {
 
     uint16_t ReadDoubleWordFromProgramCounter();
 
-    Instruction FindInstruction(const uint8_t opCode);
+    constexpr const Instruction& FindInstruction(const uint8_t opCode);
 
    private:
     void AddrImmediate();

@@ -35,7 +35,7 @@ void Cpu::Clock() {
         SetFlag(CpuFlag::U, 1);
 
         // TODO: Catch exception illegal instruction
-        auto instr = FindInstruction(m_OpCode);
+        const Instruction& instr = FindInstruction(m_OpCode);
 
         m_Cycles = instr.m_Cycles;
 
@@ -627,10 +627,10 @@ constexpr Cpu::Instruction::Instruction(const FuncPtr executeInstruction,
       m_ExecureAddressingMode{execureAddressingMode},
       m_Cycles{cycles} {}
 
-Cpu::Instruction Cpu::FindInstruction(const uint8_t opCode) {
+constexpr const Cpu::Instruction& Cpu::FindInstruction(const uint8_t opCode) {
     using Instruction = Cpu::Instruction;
 
-    static constexpr Instruction instruction_table[0x100] = {
+    constexpr Instruction instruction_table[0x100] = {
         Instruction{&Cpu::InstrBRK, nullptr, 7},                     // 0x00
         Instruction{&Cpu::InstrORA, &Cpu::AddrIndexedIndirectX, 6},  // 0x01
         Instruction{&Cpu::InstrNoImpl, nullptr, 0},                  // 0x02
