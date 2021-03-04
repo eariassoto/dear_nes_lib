@@ -18,7 +18,7 @@ void Cpu::Reset() {
     m_RegisterY = 0;
     m_StatusRegister = 0x00 | CpuFlag::U;
 
-    static constexpr uint16_t addressToReadPC = 0xFFFC;
+    constexpr uint16_t addressToReadPC = 0xFFFC;
     uint16_t lo = m_Bus->CpuRead(addressToReadPC);
     uint16_t hi = m_Bus->CpuRead(addressToReadPC + 1);
     m_ProgramCounter = (hi << 8) | lo;

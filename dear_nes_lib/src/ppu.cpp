@@ -326,7 +326,7 @@ size_t Ppu::GetNextState(std::array<PpuAction, 3>& nextActions) {
 }
 
 void Ppu::Clock() {
-    static void (Ppu::*m_PpuActionsCallbacks[PpuAction::kPpuActionSize])() = {
+    constexpr void (Ppu::*m_PpuActionsCallbacks[PpuAction::kPpuActionSize])() = {
         &Ppu::DoPpuActionPrerenderClear,
         &Ppu::DoPpuActionPrerenderTransferY,
         &Ppu::DoPpuActionRenderSkipOdd,
@@ -340,7 +340,7 @@ void Ppu::Clock() {
     };
 
     // TODO make 3 as a max const
-    static std::array<PpuAction, 3> nextActions;
+    std::array<PpuAction, 3> nextActions;
     size_t actions = GetNextState(nextActions);
     assert(actions <= 3);
     for (size_t i = 0; i < actions; i++) {
