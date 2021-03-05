@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include "dear_nes_lib/ppu.h"
 
+#include <array>
 #include <cassert>
 #include <cstring>
 
@@ -141,7 +142,7 @@ uint8_t Ppu::PpuRead(uint16_t address, bool readOnly) {
                 data = m_Nametables[1][address & 0x03FF];
         } else if (m_Cartridge &&
                    m_Cartridge->GetMirroringMode() ==
-                   CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
+                       CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 data = m_Nametables[0][address & 0x03FF];
@@ -183,7 +184,7 @@ void Ppu::PpuWrite(uint16_t address, uint8_t data) {
                 m_Nametables[1][address & 0x03FF] = data;
         } else if (m_Cartridge &&
                    m_Cartridge->GetMirroringMode() ==
-                   CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
+                       CartridgeHeader::MIRRORING_MODE::HORIZONTAL) {
             // Horizontal
             if (address >= 0x0000 && address <= 0x03FF)
                 m_Nametables[0][address & 0x03FF] = data;
@@ -265,20 +266,7 @@ bool Ppu::NeedsToDoNMI() {
     return false;
 }
 
-size_t Ppu::GetNextState(std::array<PpuAction, 3>& nextActions) {
-    /*
-        kPrerenderClear,
-        kPrerenderTransferY,
-        kRenderSkipOdd,
-        kRenderProcessNextTile,
-        kRenderIncrementScrollY,
-        kRenderLoadShiftersAndTransferX,
-        kRenderLoadNextBackgroundTile,
-        kRenderDoOAMTransfer,
-        kRenderUpdateSprites,
-        kRenderEndFrameRendering,
-        kStatesSize
-        */
+size_t Ppu::GetNextActions(std::array<PpuAction, 3>& nextActions) {
     size_t arrIndex = 0;
     if (const bool isPreRenderScanline = m_ScanLine == -1;
         isPreRenderScanline) {
@@ -297,17 +285,13 @@ size_t Ppu::GetNextState(std::array<PpuAction, 3>& nextActions) {
             (m_Cycle >= 321 && m_Cycle < 338)) {
             nextActions[arrIndex++] = PpuAction::kRenderProcessNextTile;
         }
-
         if (m_Cycle == 256) {
             nextActions[arrIndex++] = PpuAction::kRenderIncrementScrollY;
         }
-
         if (m_Cycle == 257) {
             nextActions[arrIndex++] =
-
                 PpuAction::kRenderLoadShiftersAndTransferX;
         }
-
         if (m_Cycle == 338 || m_Cycle == 340) {
             nextActions[arrIndex++] = PpuAction::kRenderLoadNextBackgroundTile;
         }
@@ -318,35 +302,13 @@ size_t Ppu::GetNextState(std::array<PpuAction, 3>& nextActions) {
             nextActions[arrIndex++] = PpuAction::kRenderUpdateSprites;
         }
     }
-
     if (m_ScanLine == 241 && m_Cycle == 1) {  // covered
         nextActions[arrIndex++] = PpuAction::kRenderEndFrameRendering;
     }
     return arrIndex;
 }
 
-void Ppu::Clock() {
-    constexpr void (Ppu::*m_PpuActionsCallbacks[PpuAction::kPpuActionSize])() = {
-        &Ppu::DoPpuActionPrerenderClear,
-        &Ppu::DoPpuActionPrerenderTransferY,
-        &Ppu::DoPpuActionRenderSkipOdd,
-        &Ppu::DoPpuActionRenderProcessNextTile,
-        &Ppu::DoPpuActionRenderIncrementScrollY,
-        &Ppu::DoPpuActionRenderLoadShiftersAndTransferX,
-        &Ppu::DoPpuActionRenderLoadNextBackgroundTile,
-        &Ppu::DoPpuActionRenderDoOAMTransfer,
-        &Ppu::DoPpuActionRenderUpdateSprites,
-        &Ppu::DoPpuActionRenderEndFrameRendering,
-    };
-
-    // TODO make 3 as a max const
-    std::array<PpuAction, 3> nextActions;
-    size_t actions = GetNextState(nextActions);
-    assert(actions <= 3);
-    for (size_t i = 0; i < actions; i++) {
-        (this->*m_PpuActionsCallbacks[static_cast<int>(nextActions[i])])();
-    }
-
+std::pair<uint8_t, uint8_t> Ppu::GetCurrentPixelToRender() {
     uint8_t bgPixel = 0x00;
     uint8_t bgPalette = 0x00;
     if (m_MaskReg.GetField(MaskRegisterFields::RENDER_BACKGROUND)) {
@@ -426,6 +388,33 @@ void Ppu::Clock() {
             }
         }
     }
+    return std::make_pair(pixel, palette);
+}
+
+void Ppu::Clock() {
+    static constexpr std::array<void (Ppu::*)(), PpuAction::kPpuActionSize>
+        ppuActionsCallbackFunctions = {
+            &Ppu::DoPpuActionPrerenderClear,
+            &Ppu::DoPpuActionPrerenderTransferY,
+            &Ppu::DoPpuActionRenderSkipOdd,
+            &Ppu::DoPpuActionRenderProcessNextTile,
+            &Ppu::DoPpuActionRenderIncrementScrollY,
+            &Ppu::DoPpuActionRenderLoadShiftersAndTransferX,
+            &Ppu::DoPpuActionRenderLoadNextBackgroundTile,
+            &Ppu::DoPpuActionRenderDoOAMTransfer,
+            &Ppu::DoPpuActionRenderUpdateSprites,
+            &Ppu::DoPpuActionRenderEndFrameRendering,
+        };
+
+    std::array<PpuAction, 3> nextActions;
+    size_t actions = GetNextActions(nextActions);
+
+    for (int i = 0; i < actions; ++i) {
+        size_t actionCallbackIndex = static_cast<size_t>(nextActions[i]);
+        (this->*ppuActionsCallbackFunctions[actionCallbackIndex])();
+    }
+
+    auto [pixel, palette] = GetCurrentPixelToRender();
 
     const int x = static_cast<int>(m_Cycle - 1);
     const int y = static_cast<int>(m_ScanLine);

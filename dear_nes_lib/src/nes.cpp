@@ -46,31 +46,31 @@ void Nes::Reset() {
 }
 
 void Nes::Clock() {
+    auto DoDMATransfer = [&]() {
+        if (m_Dma.IsInWaitState()) {
+            if (m_SystemClockCounter % 2 == 1) {
+                m_Dma.StopWaiting();
+            }
+        } else {
+            if (m_SystemClockCounter % 2 == 0) {
+                m_Dma.ReadData();
+            } else {
+                auto [addr, data] = m_Dma.GetLastReadData();
+                m_Ppu.m_OAMPtr[addr] = data;
+            }
+        }
+    };
     m_Ppu.Clock();
     if (m_SystemClockCounter % 3 == 0) {
         if (m_Dma.IsTranferInProgress()) {
-            if (m_Dma.IsInWaitState()) {
-                if (m_SystemClockCounter % 2 == 1) {
-                    m_Dma.StopWaiting();
-                }
-            } else {
-                if (m_SystemClockCounter % 2 == 0) {
-                    m_Dma.ReadData();
-                } else {
-                    // todo offer api function
-                    auto [addr, data] = m_Dma.GetLastReadData();
-                    m_Ppu.m_OAMPtr[addr] = data;
-                }
-            }
+            DoDMATransfer();
         } else {
             m_Cpu.Clock();
         }
     }
-
     if (m_Ppu.NeedsToDoNMI()) {
         m_Cpu.NonMaskableInterrupt();
     }
-
     ++m_SystemClockCounter;
 }
 
