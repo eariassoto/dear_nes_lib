@@ -233,8 +233,8 @@ class Ppu {
     uint8_t* m_OAMPtr = (uint8_t*)m_OAM;
 
    private:
-    size_t GetNextActions(std::array<PpuAction, 3>& nextActions);
-    std::pair<uint8_t, uint8_t> Ppu::GetCurrentPixelToRender();
+    std::size_t GetNextActions(std::array<PpuAction, 3>& nextActions);
+    std::pair<uint8_t, uint8_t> GetCurrentPixelToRender();
 
     void DoPpuActionPrerenderClear();
     void DoPpuActionPrerenderTransferY();
