@@ -174,6 +174,8 @@ class Cpu {
     bool m_AddressingModeNeedsAdditionalCycle = false;
     bool m_InstructionNeedsAdditionalCycle = false;
 
+    static Instruction m_InstructionTable[0x100];
+
    private:
     uint8_t Read(uint16_t address);
 
