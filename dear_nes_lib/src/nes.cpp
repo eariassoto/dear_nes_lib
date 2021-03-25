@@ -45,7 +45,7 @@ void Nes::Reset() {
     m_SystemClockCounter = 0;
 }
 
-void Nes::Clock() {
+bool Nes::Clock() {
     auto DoDMATransfer = [&]() {
         if (m_Dma.IsInWaitState()) {
             if (m_SystemClockCounter % 2 == 1) {
@@ -68,10 +68,22 @@ void Nes::Clock() {
             m_Cpu.Clock();
         }
     }
+
+    // Sync to audio
+    bool audioSampleReady = false;
+    m_ElapseAudioTime += m_AudioTimePerNESClock;
+    if (m_ElapseAudioTime > m_AudioTimePerSystemSample) {
+        m_ElapseAudioTime -= m_AudioTimePerNESClock;
+        // TODO: Copy sample from APU
+        audioSampleReady = true;
+    }
+
     if (m_Ppu.NeedsToDoNMI()) {
         m_Cpu.NonMaskableInterrupt();
     }
     ++m_SystemClockCounter;
+
+    return audioSampleReady;
 }
 
 void Nes::DoFrame() {
@@ -104,6 +116,11 @@ void Nes::ClearControllerState(size_t controllerIdx) {
 void Nes::WriteControllerState(size_t controllerIdx, uint8_t data) {
     assert(controllerIdx < NUM_CONTROLLERS);
     m_Bus.WriteControllerState(controllerIdx, data);
+}
+
+void Nes::SetSampleFrequency(int sampleRate) {
+    m_AudioTimePerSystemSample = 1.0 / static_cast<double>(sampleRate);
+    m_AudioTimePerNESClock = 1.0 / 5369318.0;  // PPU Clock Frequency
 }
 
 }  // namespace dearnes

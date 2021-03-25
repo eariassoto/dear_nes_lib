@@ -47,7 +47,7 @@ class Nes {
     /// Run a single NES tick. The PPU will always tick. Every three ticks,
     /// the CPU will tick, unless there is a DMA transfer in progress.
     /// </summary>
-    void Clock();
+    bool Clock();
 
     /// <summary>
     /// Tick the emulator until a frame is completed.
@@ -109,6 +109,8 @@ class Nes {
     /// <returns></returns>
     inline Cpu* GetCpu() { return &m_Cpu; }
 
+    void SetSampleFrequency(int sampleRate);
+
    private:
     Bus m_Bus;
     Dma m_Dma;
@@ -120,5 +122,9 @@ class Nes {
     bool m_IsCartridgeLoaded = false;
 
     uint32_t m_SystemClockCounter = 0;
+
+    double m_AudioTimePerSystemSample = 0.0;
+    double m_AudioTimePerNESClock = 0.0;
+    double m_ElapseAudioTime = 0.0;
 };
 }  // namespace dearnes
