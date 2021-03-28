@@ -73,7 +73,7 @@ bool Nes::Clock() {
     bool audioSampleReady = false;
     m_ElapseAudioTime += m_AudioTimePerNESClock;
     if (m_ElapseAudioTime > m_AudioTimePerSystemSample) {
-        m_ElapseAudioTime -= m_AudioTimePerNESClock;
+        m_ElapseAudioTime -= m_AudioTimePerSystemSample;
         // TODO: Copy sample from APU
         audioSampleReady = true;
     }
